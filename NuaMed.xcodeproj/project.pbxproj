@@ -10,6 +10,7 @@
 		5D411B465692AFEC9D821FF5 /* Pods_NuaMed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A05CB2660393A90C16D048 /* Pods_NuaMed.framework */; };
 		5D4AF668AC1E800C16A5D48F /* Pods_NuaMedTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9859C62161C60DCF7F30767F /* Pods_NuaMedTests.framework */; };
 		C82E4BE15AADAEC0C1AF584B /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3655D482F5FBE17A3B69E7F1 /* Pods_NuaMed_NuaMedUITests.framework */; };
+		F41427BD2ECCEDD6003A55E7 /* MultiSlider in Frameworks */ = {isa = PBXBuildFile; productRef = F41427BC2ECCEDD6003A55E7 /* MultiSlider */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,6 +82,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D411B465692AFEC9D821FF5 /* Pods_NuaMed.framework in Frameworks */,
+				F41427BD2ECCEDD6003A55E7 /* MultiSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,6 +254,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F4D0B8F22EC946E9007EB9B1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F41427BB2ECCEA07003A55E7 /* XCRemoteSwiftPackageReference "MultiSlider" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 893E3A452EB5332300FCBDAA /* Products */;
@@ -453,8 +456,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -487,8 +490,8 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -759,6 +762,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F41427BB2ECCEA07003A55E7 /* XCRemoteSwiftPackageReference "MultiSlider" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/yonat/MultiSlider";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.1;
+			};
+		};
 		F4D0B8F22EC946E9007EB9B1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -768,6 +779,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F41427BC2ECCEDD6003A55E7 /* MultiSlider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F41427BB2ECCEA07003A55E7 /* XCRemoteSwiftPackageReference "MultiSlider" */;
+			productName = MultiSlider;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 893E3A3C2EB5332300FCBDAA /* Project object */;
 }

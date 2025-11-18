@@ -1,7 +1,7 @@
 import UIKit
 
 class FavoritesViewController: UIViewController {
-    let favoritesScreen = FavoritesView()
+    let favoritesView = FavoritesView()
     private var favoritedProducts: [Product] = []
     
     struct Product{
@@ -14,23 +14,33 @@ class FavoritesViewController: UIViewController {
         view.backgroundColor = UIColor.systemBlue
         title = "Favorites"
         
-        let tableView = favoritesScreen.productsTableView
+        let tableView = favoritesView.productsTableView
         tableView.dataSource = self
         tableView.delegate = self
+        
+        //Category dropdown menu
+        favoritesView.categoryDropdown.onCategorySelected = { [weak self] category in self?.filterFavorites(by: category)
+        }
+        
+        //When search result should be added to favorites, call this function
+        func addFavoriteProduct(_ product: Product){
+            favoritedProducts.append(product)
+            favoritesView.productsTableView.reloadData()
+        }
+        
+//        //Filter favorites array based on the safety index
+//        favoritesView.onSafetyRangeChanged = { [weak self] minVal, maxVal in
+//            print("Safety index range: \(minVal) – \(maxVal)")
+//        }
+//        
+//        loadSampleFavorites()
     }
     
     override func loadView(){
-        view = favoritesScreen
+        view = favoritesView
     }
-    
-    //When search result should be added to favorites, call this function
-    func addFavoriteProduct(_ product: Product){
-        favoritedProducts.append(product)
-        favoritesScreen.productsTableView.reloadData()
-    }
-    
 }
-
+    
 extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favoritedProducts.count
@@ -52,10 +62,15 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-            if indexPath.row % 2 == 0 {
-                cell.backgroundColor = UIColor.systemGray6
-            } else {
-                cell.backgroundColor = .white
-            }
+        if indexPath.row % 2 == 0 {
+            cell.backgroundColor = UIColor.systemGray6
+        } else {
+            cell.backgroundColor = .white
         }
+    }
+        
+    func filterFavorites(by category: String) {
+        print("Selected category:", category)
+    }
+    
 }

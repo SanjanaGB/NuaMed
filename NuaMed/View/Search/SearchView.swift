@@ -111,6 +111,7 @@ class SearchView: UIView {
     func setupProductsTableView() {
         productsTableView.tableFooterView = UIView()
         productsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "ProductCell")
+        productsTableView.isScrollEnabled = true
         productsTableView.translatesAutoresizingMaskIntoConstraints = false
         productsTableView.backgroundColor = .white
         addSubview(productsTableView)
