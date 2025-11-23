@@ -35,6 +35,36 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
         return true
     }
 
+    private func isValidName(_ name: String) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Must not be empty after trimming
+        guard !trimmed.isEmpty else { return false }
+
+        // Regex: words with letters only, separated by a single space
+        // ^[A-Za-z]+( [A-Za-z]+)*$
+        let regex = "^[A-Za-z]+( [A-Za-z]+)*$"
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: trimmed)
+    }
+
+    private func isValidDOB(_ dob: Date) -> Bool {
+
+        let today = Date()
+
+        // 1. No future DOB
+        if dob > today { return false }
+
+        // 2. Age calculation
+        let age = Calendar.current.dateComponents([.year], from: dob, to: today).year ?? 0
+
+        // Age must be between 0 and 120
+        if age < 0 || age > 120 { return false }
+
+        return true
+    }
+
+
+
 
     private func loadUserProfile() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -47,6 +77,14 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
                 case .success(let user):
                     self.profileView.nameField.text = user.name
                     self.profileView.genderField.text = user.gender
+                    if let dob = user.dob {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "MM/dd/yyyy"
+
+                        self.profileView.dobField.text = formatter.string(from: dob)
+                    } else {
+                        self.profileView.dobField.text = nil
+                    }
                     if let age = user.age { self.profileView.ageField.text = "\(age)" }
 
                     self.profileView.allergies = user.allergies
@@ -92,15 +130,63 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
         present(nav, animated: true)
     }
 
+    func deleteUserAccount() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        let alert = UIAlertController(
+            title: "Delete Account",
+            message: "Are you sure you want to delete your account? This action cannot be undone.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
+            FirebaseService.shared.deleteUser(uid: uid) { error in
+                DispatchQueue.main.async {
+                    if let error = error {
+                        self.showAlert(title: "Error", message: error.localizedDescription)
+                    } else {
+                        self.showAlert(title: "Deleted", message: "Your account has been deleted.") {
+                            // Navigate back to login or initial screen
+                            let loginVC = LoginViewController()
+                            self.navigationController?.setViewControllers([loginVC], animated: true)
+                        }
+                    }
+                }
+            }
+        })
+
+        present(alert, animated: true)
+    }
+
     func didSaveProfile(
         name: String,
         gender: String,
+        dob: Date?,
         age: Int?,
         allergies: [String],
         medicalConditions: [String],
         medications: [String],
         profileImage: UIImage?
     ) {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !isValidName(trimmedName) {
+            showAlert(title: "Invalid Name", message: "Name must not be empty and only contain letters and single spaces (e.g. John Doe).")
+            return
+        }
+
+        guard let dob = dob else {
+            showAlert(title: "Invalid DOB", message: "Please select your date of birth.")
+            return
+        }
+
+        if !isValidDOB(dob) {
+            showAlert(title: "Invalid DOB", message: "DOB must be valid, must not be a future date, and the age must not exceed 120 years.")
+            return
+        }
+
+
         guard let uid = Auth.auth().currentUser?.uid else {
             showAlert(title: "Not signed in", message: "Please login again.")
             return
@@ -112,8 +198,9 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
                 case .failure(let err):
                     self.showAlert(title: "Error", message: err.localizedDescription)
                 case .success(var user):
-                    user.name = name
+                    user.name = trimmedName
                     user.gender = gender
+                    user.dob = dob
                     user.age = age
                     user.allergies = allergies
                     user.medicalConditions = medicalConditions
@@ -187,16 +274,16 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
             let sceneDelegate = windowScene.delegate as? SceneDelegate,
             let window = sceneDelegate.window
         else { return }
-        
+
         let tabBar = BottomTabBarController()
         tabBar.selectedIndex = 1   // middle tab = Search
-        
+
         //Animated transition
         UIView.transition(with: window, duration: 0.3, options: [.transitionFlipFromRight], animations: {
             window.rootViewController = tabBar
         }, completion: nil)
     }
-    
+
     private func promptForCredentialChange() {
         let alert = UIAlertController(title: "Change Credentials", message: "Choose what to change", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Change Email", style: .default) { _ in self.askCurrentPasswordAndNewEmail() })
@@ -232,7 +319,7 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
                                     self.showAlert(title: "Taken", message: "Username already taken")
                                     return
                                 }
-                                
+
                                 FirebaseService.shared.updateUsername(uid: uid, newUsername: new) { err in
                                     if let err = err {
                                         self.showAlert(title: "Error", message: err.localizedDescription)
@@ -246,7 +333,7 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
                 }
             }
         })
-        
+
         a.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(a, animated: true)
     }
