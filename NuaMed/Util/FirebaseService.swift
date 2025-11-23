@@ -39,6 +39,7 @@ class FirebaseService {
                     email: email,
                     name: nil,
                     gender: nil,
+                    dob: nil,
                     age: nil,
                     allergies: [],
                     medications: [],
@@ -168,6 +169,7 @@ class FirebaseService {
                         email: emailValue,
                         name: data["name"] as? String,
                         gender: data["gender"] as? String,
+                        dob: (data["dob"] as? Timestamp)?.dateValue(),
                         age: data["age"] as? Int,
                         allergies: data["allergies"] as? [String] ?? [],
                         medications: data["medications"] as? [String] ?? [],
@@ -296,6 +298,49 @@ class FirebaseService {
             }
         }
     }
+    
+    // MARK: - Delete User Account
+    func deleteUser(uid: String, completion: @escaping (Error?) -> Void) {
+        // First, fetch the user's profile to get the username
+        fetchUserProfile(uid: uid) { result in
+            switch result {
+            case .failure(let err):
+                completion(err)
+            case .success(let profile):
+                let username = profile.username ?? ""
+                let batch = self.db.batch()
+                
+                // Delete user document
+                let userRef = self.db.collection("users").document(uid)
+                batch.deleteDocument(userRef)
+                
+                // Delete username document if exists
+                if !username.isEmpty {
+                    let usernameRef = self.db.collection("usernames").document(username.lowercased())
+                    batch.deleteDocument(usernameRef)
+                }
+                
+                // Commit batch deletion in Firestore
+                batch.commit { batchError in
+                    if let batchError = batchError {
+                        completion(batchError)
+                        return
+                    }
+                    
+                    // Delete Firebase Auth account
+                    guard let user = Auth.auth().currentUser, user.uid == uid else {
+                        completion(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"]))
+                        return
+                    }
+                    
+                    user.delete { authError in
+                        completion(authError) // nil if success
+                    }
+                }
+            }
+        }
+    }
+
 
 
     // MARK: - Upload image
