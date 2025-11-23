@@ -1,9 +1,13 @@
+import Foundation
+import FirebaseFirestore
+
 struct User {
     let uid: String
     let username: String
     let email: String
     var name: String?
     var gender: String?
+    var dob: Date?
     var age: Int?
     var allergies: [String]
     var medications: [String]
@@ -16,6 +20,7 @@ struct User {
          email: String,
          name: String? = nil,
          gender: String? = nil,
+         dob: Date? = nil,
          age: Int? = nil,
          allergies: [String] = [],
          medications: [String] = [],
@@ -27,6 +32,7 @@ struct User {
         self.email = email
         self.name = name
         self.gender = gender
+        self.dob = dob
         self.age = age
         self.allergies = allergies
         self.medications = medications
@@ -35,7 +41,6 @@ struct User {
         self.profileImageBase64 = profileImageBase64
     }
 
-    
     func toDictionary() -> [String: Any] {
         return [
             "uid": uid,
@@ -43,6 +48,7 @@ struct User {
             "email": email,
             "name": name as Any,
             "gender": gender as Any,
+            "dob": dob as Any, // Store as Date directly
             "age": age as Any,
             "allergies": allergies,
             "medications": medications,
@@ -58,6 +64,14 @@ struct User {
         self.email = dict["email"] as? String ?? ""
         self.name = dict["name"] as? String
         self.gender = dict["gender"] as? String
+        
+        // Firestore stores dates as Timestamp
+        if let timestamp = dict["dob"] as? Timestamp {
+            self.dob = timestamp.dateValue()
+        } else {
+            self.dob = nil
+        }
+
         self.age = dict["age"] as? Int
         self.allergies = dict["allergies"] as? [String] ?? []
         self.medications = dict["medications"] as? [String] ?? []
