@@ -29,7 +29,7 @@ class LoginView: UIView {
         contentView.addSubview(header)
         [usernameField, passwordField, loginButton, registerButton, forgotButton].forEach { contentView.addSubview($0) }
 
-        usernameField.styleForAuth(placeholderText: "Email")
+        usernameField.styleForAuth(placeholderText: "Username/Email")
         passwordField.styleForAuth(placeholderText: "Password")
         passwordField.isSecureTextEntry = true
 
