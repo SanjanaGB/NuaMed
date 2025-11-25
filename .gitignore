@@ -1,13 +1,12 @@
 # Xcode
 DerivedData/
-*.xcuserdata
+xcuserdata/
 *.xccheckout
 *.moved-aside
 *.xcuserstate
 
 # CocoaPods
 Pods/
-Podfile.lock
 
 # Firebase config file
 GoogleService-Info.plist
