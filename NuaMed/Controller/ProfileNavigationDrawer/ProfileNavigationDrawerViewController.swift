@@ -1,4 +1,5 @@
 import UIKit
+import FirebaseAuth
 
 protocol ProfileDrawerDelegate: AnyObject {
     func profileDrawerDidTapEditProfile(_ drawer:       ProfileNavigationDrawerViewController)
@@ -12,85 +13,95 @@ protocol ProfileDrawerDelegate: AnyObject {
 
 class ProfileNavigationDrawerViewController: UIViewController {
     weak var delegate: ProfileDrawerDelegate?
+    private let drawerView = ProfileNavigationDrawerView()
+    
+    private var profileImageView: UIImageView {
+        drawerView.profileImageView
+    }
+    
+    private var nameLabel: UILabel{
+        drawerView.nameLabel
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         
-        // You can build this with stack views / buttons / table view
-        // Here’s the minimal skeleton with some buttons:
-        
-        let closeButton = UIButton(type: .system)
-        closeButton.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
-        
-        let editButton = makeMenuButton(title: "Edit User Profile", systemImage: "person")
-        editButton.addTarget(self, action: #selector(editProfileTapped), for: .touchUpInside)
-        
-        let productHistoryButton = makeMenuButton(title: "Product history", systemImage: "tag")
-        productHistoryButton.addTarget(self, action: #selector(productHistoryTapped), for: .touchUpInside)
-        
-        let newsButton = makeMenuButton(title: "News", systemImage: "newspaper")
-        newsButton.addTarget(self, action: #selector(newsTapped), for: .touchUpInside)
-        
-        let shareCardButton = makeMenuButton(title: "Share my information card",
-                                             systemImage: "person.2")
-        
-        shareCardButton.addTarget(self, action: #selector(shareCardTapped), for: .touchUpInside)
-        
-        let helpButton = UIButton(type: .system)
-        helpButton.setTitle("Help", for: .normal)
-        helpButton.addTarget(self, action: #selector(helpTapped), for: .touchUpInside)
-        
-        let logoutButton = UIButton(type: .system)
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
-        
-        
-        
-        
-        //Layout
-        let stack = UIStackView(arrangedSubviews: [
-            closeButton,
-            editButton,
-            productHistoryButton,
-            newsButton,
-            shareCardButton,
-            UIView(),    // spacer
-            helpButton,
-            logoutButton
-        ])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.alignment = .leading
-        
-        view.addSubview(stack)
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16)
-        ])
+        wireCallbacks()
+        refreshProfile()
     }
     
-    private func makeMenuButton(title: String, systemImage: String) -> UIButton {
-        let btn = UIButton(type: .system)
-        btn.setTitle(title, for: .normal)
-        btn.setImage(UIImage(systemName: systemImage), for: .normal)
-        btn.tintColor = .black
-        btn.contentHorizontalAlignment = .left
-        btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 12)
-        return btn
+    override func loadView(){
+        view = drawerView
     }
     
-    // MARK: - Actions
-    @objc private func closeTapped()         { delegate?.profileDrawerDidTapClose(self) }
-    @objc private func editProfileTapped()   { delegate?.profileDrawerDidTapEditProfile(self) }
-    @objc private func productHistoryTapped(){ delegate?.profileDrawerDidTapProductHistory(self) }
-    @objc private func newsTapped()          { delegate?.profileDrawerDidTapNews(self) }
-    @objc private func shareCardTapped()     { delegate?.profileDrawerDidTapShareInfoCard(self) }
-    @objc private func helpTapped()          { delegate?.profileDrawerDidTapHelp(self) }
-    @objc private func logoutTapped()        { delegate?.profileDrawerDidTapLogout(self) }
+    private func wireCallbacks(){
+        drawerView.onEditProfile = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapEditProfile(self)
+        }
+        
+        drawerView.onProductHistory = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapProductHistory(self)
+        }
+        
+        drawerView.onNews = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapNews(self)
+        }
+        
+        drawerView.onShareCard = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapShareInfoCard(self)
+        }
+        
+        drawerView.onHelp = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapHelp(self)
+        }
+        
+        drawerView.onLogout = { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.profileDrawerDidTapLogout(self)
+        }
+    }
+    
+    func refreshProfile(){
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        FirebaseService.shared.fetchUserProfile(uid: uid) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let err):
+                    print("Drawer: failed to fetch profile:", err)
+                case .success(let user):
+                    self.nameLabel.text = user.name
+                    
+                    // Option A: use separate image fetch, same as ProfileSetupViewController
+                    FirebaseService.shared.fetchProfileImage(uid: uid) { imageResult in
+                        DispatchQueue.main.async {
+                            switch imageResult {
+                            case .success(let image):
+                                if let image = image {
+                                    self.profileImageView.image = image
+                                    self.profileImageView.contentMode = .scaleAspectFill
+                                } else {
+                                    self.setPlaceholderImage()
+                                }
+                            case .failure(_):
+                                self.setPlaceholderImage()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    //Set PlaceHolder image
+    private func setPlaceholderImage(){
+        profileImageView.image = UIImage(systemName: "person.fill")
+        profileImageView.tintColor = .systemGray3
+        profileImageView.contentMode = .scaleAspectFit
+    }
 }

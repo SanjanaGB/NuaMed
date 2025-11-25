@@ -34,6 +34,12 @@ class FavoritesViewController: UIViewController {
 //        }
 //        
 //        loadSampleFavorites()
+        
+        favoritedProducts = [
+                Product(itemName: "Pantene shampoo", safetyIndex: "85"),
+                Product(itemName: "Nivea face cream", safetyIndex: "72")
+            ]
+        tableView.reloadData()
     }
     
     override func loadView(){
@@ -47,10 +53,25 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath)
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath)
+//        let product = favoritedProducts[indexPath.row]
+//        cell.textLabel?.text = "\(product.itemName)   \(product.safetyIndex)"
+//        cell.textLabel?.textColor = .black
+//        cell.accessoryType = .disclosureIndicator
+//        return cell
         let product = favoritedProducts[indexPath.row]
-        cell.textLabel?.text = "\(product.itemName)   \(product.safetyIndex)"
-        cell.textLabel?.textColor = .black
+
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: "ProductCell",
+            for: indexPath
+        ) as? ProductTableViewCell else {
+            return UITableViewCell()
+        }
+
+        // Plug values into the cell
+        cell.configure(name: product.itemName, safetyIndex: product.safetyIndex)
+        // If you later have an image URL or asset, pass it here.
+
         cell.accessoryType = .disclosureIndicator
         return cell
     }
@@ -58,7 +79,15 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let product = favoritedProducts[indexPath.row]
-        print("Selected:", product.itemName)
+        
+        let safetyInt = Int(product.safetyIndex) ?? 0
+        
+        let detailVC = ProductInfoViewController(
+                name: product.itemName,
+                safetyScore: safetyInt
+            )
+        
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
