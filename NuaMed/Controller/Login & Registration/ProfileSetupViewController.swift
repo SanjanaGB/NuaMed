@@ -15,8 +15,8 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         setupNavigationBar(title: "Profile Setup") { [weak self] in
             guard let self = self else { return }
-            let imageCapture = ImageCaptureViewController()
-            self.navigationController?.setViewControllers([imageCapture], animated: true)
+            let searchVC = SearchViewController()
+            self.navigationController?.setViewControllers([searchVC], animated: true)
         }
 
         profileView.delegate = self
