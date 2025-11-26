@@ -61,8 +61,7 @@ class ProfileNavigationDrawerViewController: UIViewController {
         }
         
         drawerView.onLogout = { [weak self] in
-            guard let self = self else { return }
-            self.delegate?.profileDrawerDidTapLogout(self)
+            self?.handleLogout()
         }
     }
     
@@ -103,5 +102,29 @@ class ProfileNavigationDrawerViewController: UIViewController {
         profileImageView.image = UIImage(systemName: "person.fill")
         profileImageView.tintColor = .systemGray3
         profileImageView.contentMode = .scaleAspectFit
+    }
+    
+    private func handleLogout() {
+        do {
+            try Auth.auth().signOut()
+            
+            let loginVC = LoginViewController()
+            let nav = UINavigationController(rootViewController: loginVC)
+            nav.modalPresentationStyle = .fullScreen
+            
+            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = scene.delegate as? SceneDelegate,
+                let window = sceneDelegate.window {
+                window.rootViewController = nav
+                window.makeKeyAndVisible()
+            } else {
+                self.navigationController?.setViewControllers([loginVC], animated: true)
+            }
+        } catch {
+            let alert = UIAlertController(title: "Error", message: "Error signing out: \(error.localizedDescription)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+//            showAlert(title: "Error", message: "Failed to logout: \(error.localizedDescription)")
+        }
     }
 }
