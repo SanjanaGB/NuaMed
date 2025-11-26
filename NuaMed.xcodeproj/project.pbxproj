@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		497E0F852C293AFAC4178BC2 /* Pods_NuaMed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09545E3A69CFC2557B5D929B /* Pods_NuaMed.framework */; };
-		893E3B492EB68CA500FCBDAA /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 893E3B482EB68CA500FCBDAA /* README.md */; };
 		908A5B7A584361E919E94A22 /* Pods_NuaMedTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3AC5C925EE0A06FAD0047FB /* Pods_NuaMedTests.framework */; };
 		EEDEA6B33C8D3B2856B953F8 /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA455EF9BB1FC3162604FA82 /* Pods_NuaMed_NuaMedUITests.framework */; };
 		F4977DED2ED6516A00DD17FD /* MultiSlider in Frameworks */ = {isa = PBXBuildFile; productRef = F4977DEC2ED6516A00DD17FD /* MultiSlider */; };
@@ -411,7 +410,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				893E3B492EB68CA500FCBDAA /* README.md in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
