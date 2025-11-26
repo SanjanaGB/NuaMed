@@ -1,6 +1,11 @@
 import UIKit
 
+protocol SearchViewDelegate: AnyObject {
+    func didTapScanButton()
+}
+
 class SearchView: UIView {
+    weak var delegate: SearchViewDelegate?
     var searchContainer: UIView!
     var searchFieldView: UISearchTextField!
     var scanningButton: UIButton!
@@ -163,6 +168,6 @@ class SearchView: UIView {
     }
     
     @objc private func scanButtonTapped() {
-        print("Scan button tapped")
+        delegate?.didTapScanButton()
     }
 }

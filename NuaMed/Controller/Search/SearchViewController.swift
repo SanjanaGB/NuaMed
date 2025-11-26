@@ -1,8 +1,9 @@
 import UIKit
 
-class SearchViewController: UIViewController {
+class SearchViewController: UIViewController, SearchViewDelegate {
     private let searchView = SearchView(frame: .zero)
     private var searchedProducts: [Product] = []
+
     
     struct Product{
         let itemName: String
@@ -26,6 +27,7 @@ class SearchViewController: UIViewController {
     }
     
     override func loadView(){
+        searchView.delegate = self
         view = searchView
     }
     
@@ -34,6 +36,12 @@ class SearchViewController: UIViewController {
         searchedProducts.append(product)
         searchView.productsTableView.reloadData()
     }
+    
+    func didTapScanButton() {
+        let scanVC = ImageCaptureViewController()
+        navigationController?.pushViewController(scanVC, animated: true)
+    }
+
     
 }
 

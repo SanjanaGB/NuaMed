@@ -12,8 +12,8 @@ class ImageCaptureViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar(title: "Upload Image") {
-            let profileVC = ProfileSetupViewController()
-            self.navigationController?.setViewControllers([profileVC], animated: true)
+            let searchVC = SearchViewController()
+            self.navigationController?.setViewControllers([searchVC], animated: true)
         }
         captureView.delegate = self
     }
@@ -57,15 +57,15 @@ extension ImageCaptureViewController: ImageCaptureViewDelegate, UIImagePickerCon
         showAlert(title: "Submit", message: "Submit pressed. No operation implemented yet.")
     }
 
-    func didTapLogout() {
-        do {
-            try Auth.auth().signOut()
-            let loginVC = LoginViewController()
-            navigationController?.setViewControllers([loginVC], animated: true)
-        } catch {
-            showAlert(title: "Error", message: "Failed to logout: \(error.localizedDescription)")
-        }
-    }
+//    func didTapLogout() {
+//        do {
+//            try Auth.auth().signOut()
+//            let loginVC = LoginViewController()
+//            navigationController?.setViewControllers([loginVC], animated: true)
+//        } catch {
+//            showAlert(title: "Error", message: "Failed to logout: \(error.localizedDescription)")
+//        }
+//    }
 
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         picker.dismiss(animated: true)
