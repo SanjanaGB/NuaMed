@@ -3,7 +3,6 @@ import UIKit
 protocol ImageCaptureViewDelegate: AnyObject {
     func didTapChooseImage()
     func didTapSubmit(image: UIImage?)
-    func didTapLogout()
 }
 
 class ImageCaptureView: UIView {
@@ -28,7 +27,6 @@ class ImageCaptureView: UIView {
 
     let uploadButton = UIButton(type: .system)
     let submitButton = UIButton(type: .system)
-    let logoutButton = UIButton(type: .system)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -53,22 +51,17 @@ class ImageCaptureView: UIView {
         uploadButton.addTarget(self, action: #selector(uploadTapped), for: .touchUpInside)
 
         submitButton.setTitle("Submit", for: .normal)
-        submitButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        submitButton.setTitleColor(.systemBlue, for: .normal)
-        submitButton.backgroundColor = .clear
+        submitButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        submitButton.setTitleColor(.white, for: .normal)
+        submitButton.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 128/255, alpha: 1.0) // Navy
+        submitButton.layer.cornerRadius = 10
+        submitButton.clipsToBounds = true
         submitButton.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
 
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        logoutButton.setTitleColor(.white, for: .normal)
-        logoutButton.backgroundColor = UIColor(red: 0/255, green: 0/255, blue: 128/255, alpha: 1.0) // Navy
-        logoutButton.layer.cornerRadius = 10
-        logoutButton.clipsToBounds = true
-        logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
     }
 
     private func addSubviews() {
-        [imageView, uploadButton, submitButton, logoutButton].forEach { contentView.addSubview($0) }
+        [imageView, uploadButton, submitButton].forEach { contentView.addSubview($0) }
     }
 
     override func layoutSubviews() {
@@ -92,15 +85,12 @@ class ImageCaptureView: UIView {
         submitButton.frame = CGRect(x: margin, y: y, width: bounds.width - 2*margin, height: buttonHeight)
         y = submitButton.frame.maxY + 12
 
-        logoutButton.frame = CGRect(x: margin, y: y, width: bounds.width - 2*margin, height: 60)
-        y = logoutButton.frame.maxY + 40
 
         scrollView.contentSize = CGSize(width: bounds.width, height: y)
     }
 
     @objc private func uploadTapped() { delegate?.didTapChooseImage() }
     @objc private func submitTapped() { delegate?.didTapSubmit(image: imageView.image) }
-    @objc private func logoutTapped() { delegate?.didTapLogout() }
 
     func setCapturedImage(_ image: UIImage?) {
         if let image = image {

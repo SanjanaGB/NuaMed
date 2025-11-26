@@ -52,7 +52,7 @@ extension LoginViewController: LoginViewDelegate {
                                 self.showAlert(title: "Error", message: "Couldn't fetch profile")
                             case .success(let profile):
                                 if profile.profileSetup {
-                                    let home = ImageCaptureViewController()
+                                    let home = SearchViewController()
                                     self.navigationController?.setViewControllers([home], animated: true)
                                 } else {
                                     let alert = UIAlertController(title: "Profile", message: "Set up your profile now?", preferredStyle: .alert)
@@ -61,7 +61,7 @@ extension LoginViewController: LoginViewDelegate {
                                         self.navigationController?.pushViewController(vc, animated: true)
                                     })
                                     alert.addAction(UIAlertAction(title: "Skip", style: .cancel) { _ in
-                                        let home = ImageCaptureViewController()
+                                        let home = SearchViewController()
                                         self.navigationController?.setViewControllers([home], animated: true)
                                     })
                                     self.present(alert, animated: true)
