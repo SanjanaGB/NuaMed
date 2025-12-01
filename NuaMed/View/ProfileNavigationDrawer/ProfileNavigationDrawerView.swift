@@ -135,9 +135,9 @@ class ProfileNavigationDrawerView: UIView {
         //Logout button
         NSLayoutConstraint.activate([
             logoutButton.centerXAnchor.constraint(equalTo: centerXAnchor),
-            logoutButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -50),
+            logoutButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -100),
             logoutButton.heightAnchor.constraint(equalToConstant: 44),
-            logoutButton.widthAnchor.constraint(equalToConstant: 170),
+            logoutButton.widthAnchor.constraint(equalToConstant: 140),
         ])
     }
     

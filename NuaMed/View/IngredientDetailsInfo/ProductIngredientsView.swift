@@ -1,6 +1,6 @@
 import UIKit
 
-class IngredientInfoView: UIView {
+class ProductIngredientsView: UIView {
     var searchContainer: UIView!
     var searchFieldView: UISearchTextField!
     var scanningButton: UIButton!
@@ -110,7 +110,7 @@ class IngredientInfoView: UIView {
     
     func setupProductsTableView() {
         productsTableView.tableFooterView = UIView()
-        productsTableView.register(ProductTableViewCell.self, forCellReuseIdentifier: "ProductCell")
+        productsTableView.register(IngredientTableViewCell.self, forCellReuseIdentifier: "ProductCell")
         productsTableView.isScrollEnabled = true
         productsTableView.translatesAutoresizingMaskIntoConstraints = false
         productsTableView.backgroundColor = .white

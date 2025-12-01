@@ -171,12 +171,12 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        // Force the tab bar to sit flush at the bottom and span full width
-        var frame = tabBar.frame
-        frame.origin.x = 0
-        frame.size.width = view.bounds.width
-        frame.origin.y = view.bounds.height - frame.size.height
-        tabBar.frame = frame
+//        // Force the tab bar to sit flush at the bottom and span full width
+//        var frame = tabBar.frame
+//        frame.origin.x = 0
+////        frame.size.width = view.bounds.width
+//        frame.origin.y = view.bounds.height - frame.size.height
+//        tabBar.frame = frame
     }
     
 }
