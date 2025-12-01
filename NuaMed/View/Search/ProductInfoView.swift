@@ -8,7 +8,10 @@ class ProductInfoView: UIView {
     var safetyRatingLabel: UILabel!
     var safetyLabel: UILabel!
     var safetyIndexLabel: UILabel!
+    
+    //Favorites star icon
     var favoriteStarImageView: UIImageView!
+    var onFavoriteTapped: (() -> Void)?
     
     //Alergens yellow card
     var rectangleContainer: UIView!
@@ -61,11 +64,17 @@ class ProductInfoView: UIView {
         addSubview(productImageView)
     }
     
-    func setupFavoriteStarIcon(){
+    func setupFavoriteStarIcon() {
         favoriteStarImageView = UIImageView()
         favoriteStarImageView.image = UIImage(systemName: "star")
         favoriteStarImageView.tintColor = .systemYellow
         favoriteStarImageView.translatesAutoresizingMaskIntoConstraints = false
+
+        //Clickable star
+        favoriteStarImageView.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(target: self, action: #selector(favoriteStarTapped))
+        favoriteStarImageView.addGestureRecognizer(tap)
+
         addSubview(favoriteStarImageView)
     }
     
@@ -73,7 +82,7 @@ class ProductInfoView: UIView {
         productNameLabel = UILabel()
         productNameLabel.text = "Product Name"
         productNameLabel.font = UIFont.boldSystemFont(ofSize: 28)
-        productNameLabel.textColor = .black
+        productNameLabel.textColor = .white
         productNameLabel.textAlignment = .center
         productNameLabel.numberOfLines = 0
         productNameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -82,10 +91,10 @@ class ProductInfoView: UIView {
     
     func setupSafetyRatingLabel(){
         safetyRatingLabel = UILabel()
-        safetyRatingLabel.text = "Safety Rating"
+        safetyRatingLabel.text = "Safety Rating: "
         safetyRatingLabel.textAlignment = .center
-        safetyRatingLabel.font = UIFont.systemFont(ofSize: 20)
-        safetyRatingLabel.textColor = .black
+        safetyRatingLabel.font = UIFont.boldSystemFont(ofSize: 20)
+        safetyRatingLabel.textColor = .white
         safetyRatingLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(safetyRatingLabel)
     }
@@ -100,7 +109,7 @@ class ProductInfoView: UIView {
         //Safety + Score view
         safetyLabel = UILabel()
         safetyLabel.text = "Safety"
-        safetyLabel.font = UIFont.systemFont(ofSize: 17)
+        safetyLabel.font = UIFont.boldSystemFont(ofSize: 17)
         safetyLabel.textColor = .white
         safetyLabel.translatesAutoresizingMaskIntoConstraints = false
         safetyPillView.addSubview(safetyLabel)
@@ -147,7 +156,7 @@ class ProductInfoView: UIView {
     func setupIngredientsTableView() {
         ingredientsTableView.tableFooterView = UIView()
        // ingredientsTableView.layer.cornerRadius = 16
-        ingredientsTableView.register(ProductTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
+        ingredientsTableView.register(IngredientTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
         ingredientsTableView.isScrollEnabled = true
         ingredientsTableView.clipsToBounds = true
         ingredientsTableView.translatesAutoresizingMaskIntoConstraints = false
@@ -159,6 +168,7 @@ class ProductInfoView: UIView {
         ingredientsLabel = UILabel()
         ingredientsLabel.text = "Natural & Artificial Ingredients"
         ingredientsLabel.font = UIFont.boldSystemFont(ofSize: 20)
+        ingredientsLabel.textColor = .white
         ingredientsLabel.textAlignment = .center
         ingredientsLabel.numberOfLines = 0
         ingredientsLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -233,5 +243,15 @@ class ProductInfoView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    //Function to update the star icon called by controller
+    func updateFavoriteStarIcon(systemName: String) {
+        favoriteStarImageView.image = UIImage(systemName: systemName)
+    }
+    
+    //Internal handler for star tap
+    @objc func favoriteStarTapped() {
+        onFavoriteTapped?()
     }
 }

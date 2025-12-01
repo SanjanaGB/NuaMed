@@ -2,12 +2,7 @@ import UIKit
 
 class FavoritesViewController: UIViewController {
     let favoritesView = FavoritesView()
-    private var favoritedProducts: [Product] = []
-    
-    struct Product{
-        let itemName: String
-        let safetyIndex: String
-    }
+    private var favoritedProducts: [FavoriteProduct] = []
     
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -19,11 +14,12 @@ class FavoritesViewController: UIViewController {
         tableView.delegate = self
         
         //Category dropdown menu
-        favoritesView.categoryDropdown.onCategorySelected = { [weak self] category in self?.filterFavorites(by: category)
+        favoritesView.categoryDropdown.onCategorySelected = { [weak self] category in
+            self?.filterFavorites(by: category)
         }
         
         //When search result should be added to favorites, call this function
-        func addFavoriteProduct(_ product: Product){
+        func addFavoriteProduct(_ product: FavoriteProduct){
             favoritedProducts.append(product)
             favoritesView.productsTableView.reloadData()
         }
@@ -34,14 +30,15 @@ class FavoritesViewController: UIViewController {
 //        }
 //        
 //        loadSampleFavorites()
-        
-        favoritedProducts = [
-                Product(itemName: "Pantene shampoo", safetyIndex: "85"),
-                Product(itemName: "Nivea face cream", safetyIndex: "72")
-            ]
-        tableView.reloadData()
     }
     
+    //Get the products from the Favorites file
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        favoritedProducts = Favorites.shared.products
+        favoritesView.productsTableView.reloadData()
+    }
+
     override func loadView(){
         view = favoritesView
     }
@@ -53,12 +50,6 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath)
-//        let product = favoritedProducts[indexPath.row]
-//        cell.textLabel?.text = "\(product.itemName)   \(product.safetyIndex)"
-//        cell.textLabel?.textColor = .black
-//        cell.accessoryType = .disclosureIndicator
-//        return cell
         let product = favoritedProducts[indexPath.row]
 
         guard let cell = tableView.dequeueReusableCell(
@@ -69,9 +60,7 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
         }
 
         // Plug values into the cell
-        cell.configure(name: product.itemName, safetyIndex: product.safetyIndex)
-        // If you later have an image URL or asset, pass it here.
-
+        cell.configure(name: product.name, safetyIndex: String(product.safetyScore))
         cell.accessoryType = .disclosureIndicator
         return cell
     }
@@ -80,11 +69,11 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let product = favoritedProducts[indexPath.row]
         
-        let safetyInt = Int(product.safetyIndex) ?? 0
+//        let safetyInt = Int(product.safetyIndex) ?? 0
         
         let detailVC = ProductInfoViewController(
-                name: product.itemName,
-                safetyScore: safetyInt
+                name: product.name,
+                safetyScore: product.safetyScore
             )
         
         navigationController?.pushViewController(detailVC, animated: true)
