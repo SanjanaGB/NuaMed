@@ -62,8 +62,17 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
 
         return true
     }
+    
+    private func calculateAge(from dob: Date) -> Int {
+        let today = Date()
+        let comps = Calendar.current.dateComponents([.year], from: dob, to: today)
+        return comps.year ?? 0
+    }
 
-
+    private func isValidGender(_ gender: String) -> Bool {
+        let g = gender.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        return g == "male" || g == "female"
+    }
 
 
     private func loadUserProfile() {
@@ -185,6 +194,35 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
             showAlert(title: "Invalid DOB", message: "DOB must be valid, must not be a future date, and the age must not exceed 120 years.")
             return
         }
+        
+        let trimmedGender = gender.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !isValidGender(trimmedGender) {
+            showAlert(title: "Invalid Gender",
+                      message: "Gender must be either Male or Female.")
+            return
+        }
+        
+        let correctAge = calculateAge(from: dob)
+
+
+        if age == nil {
+            profileView.ageField.text = "\(correctAge)"
+        } else {
+            if age != correctAge {
+                showAlert(
+                    title: "Incorrect Age",
+                    message: "The age you entered does not match your date of birth. Correct age is \(correctAge)."
+                )
+                return
+            }
+        }
+
+        if correctAge < 0 || correctAge > 120 {
+            showAlert(title: "Invalid Age",
+                      message: "Age must be between 0 and 120 years.")
+            return
+        }
 
 
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -240,13 +278,13 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
     }
 
     func didTapBack() {
-        let imageCapture = ImageCaptureViewController()
-        navigationController?.setViewControllers([imageCapture], animated: true)
+        let searchVC = SearchViewController()
+        navigationController?.setViewControllers([searchVC], animated: true)
     }
 
     func didSkipProfile() {
-        let imageCapture = ImageCaptureViewController()
-        navigationController?.setViewControllers([imageCapture], animated: true)
+        let searchVC = SearchViewController()
+        navigationController?.setViewControllers([searchVC], animated: true)
     }
 
     //MARK: Save user's profile result
@@ -259,7 +297,7 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
                 self.present(alert, animated: true) {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         alert.dismiss(animated: true){
-                            self.goToSearchPage()
+                            //self.goToSearchPage()
                         }
                     }
                 }
@@ -301,6 +339,17 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
         
         a.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             guard let new = a.textFields?.first?.text, !new.isEmpty else { return }
+            
+        
+            let pattern = "^[A-Za-z0-9]+$"
+            if new.range(of: pattern, options: .regularExpression) == nil {
+                self.showAlert(
+                    title: "Invalid Username",
+                    message: "Username can only contain letters and numbers, no spaces or special characters."
+                )
+                return
+            }
+            
             FirebaseService.shared.fetchUserProfile(uid: uid) { result in
                 DispatchQueue.main.async {
                     switch result {
@@ -346,6 +395,13 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
         a.addAction(UIAlertAction(title: "Save", style: .default) { _ in
             let curr = a.textFields?[0].text ?? ""
             let newEmail = a.textFields?[1].text ?? ""
+            
+            let pattern = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
+            if newEmail.range(of: pattern, options: .regularExpression) == nil {
+                self.showAlert(title: "Invalid Email", message: "Please enter a valid email address.")
+                return
+            }
+            
             FirebaseService.shared.reauthenticateAndChangeEmail(currentPassword: curr, newEmail: newEmail) { err in
                 DispatchQueue.main.async {
                     if let err = err { self.showAlert(title: "Error", message: err.localizedDescription); return }
