@@ -72,8 +72,6 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
     private func isValidGender(_ gender: String) -> Bool {
         let g = gender.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         return g == "male" || g == "female"
-        // If you want “Other”:
-        // return ["male","female","other"].contains(g)
     }
 
 
