@@ -36,12 +36,12 @@ extension LoginViewController: LoginViewDelegate {
             Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
                 DispatchQueue.main.async {
                     if let error = error {
-                        self.showAlert(title: "Error", message: "Invalid email or password")
+                        self.showAlert(title: "Error", message: "Invalid username/email or password")
                         return
                     }
 
                     guard let uid = authResult?.user.uid else {
-                        self.showAlert(title: "Error", message: "Invalid email or password")
+                        self.showAlert(title: "Error", message: "Invalid username/email or password")
                         return
                     }
 
@@ -96,22 +96,40 @@ extension LoginViewController: LoginViewDelegate {
     }
 
     func didTapForgotPassword(emailOrUsername: String?) {
-        guard let entry = emailOrUsername, !entry.isEmpty else {
-            showAlert(title: "Enter email", message: "Enter your email in the field and tap Forgot Password.")
-            return
+        let alert = UIAlertController(
+            title: "Reset Password",
+            message: "Enter your registered email",
+            preferredStyle: .alert
+        )
+        
+        alert.addTextField { textField in
+            textField.placeholder = "Email"
         }
-
-        if entry.contains("@") {
-            FirebaseService.shared.sendPasswordReset(toEmail: entry) { err in
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        alert.addAction(UIAlertAction(title: "Send", style: .default, handler: { _ in
+            guard let email = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !email.isEmpty else {
+                self.showAlert(title: "Missing Email", message: "Please enter a valid email.")
+                return
+            }
+            
+            // Send the password reset email
+            FirebaseService.shared.sendPasswordReset(toEmail: email) { err in
                 DispatchQueue.main.async {
                     if let err = err {
                         self.showAlert(title: "Error", message: err.localizedDescription)
                     } else {
-                        self.showAlert(title: "Sent", message: "If email is already registered, password reset email will be sent.")
+                        self.showAlert(
+                            title: "Email Sent",
+                            message: "If this email is registered, you will receive a password reset link."
+                        )
                     }
                 }
             }
-        }
-            
+        }))
+        
+        self.present(alert, animated: true)
     }
 }
