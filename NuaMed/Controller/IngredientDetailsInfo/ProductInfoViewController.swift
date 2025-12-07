@@ -30,7 +30,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         self.productName = name
         self.productSafetyScore = safetyScore
         super.init(nibName: nil, bundle: nil)
-        // hidesBottomBarWhenPushed = true
+        hidesBottomBarWhenPushed = true
     }
     
     required init?(coder: NSCoder) {
@@ -117,4 +117,3 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
     }
 
 }
-
