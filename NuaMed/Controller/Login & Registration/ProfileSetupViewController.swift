@@ -278,13 +278,11 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
     }
 
     func didTapBack() {
-        let searchVC = SearchViewController()
-        navigationController?.setViewControllers([searchVC], animated: true)
+        goToSearchPage()
     }
 
     func didSkipProfile() {
-        let searchVC = SearchViewController()
-        navigationController?.setViewControllers([searchVC], animated: true)
+        goToSearchPage()
     }
 
     //MARK: Save user's profile result
@@ -321,6 +319,7 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
             window.rootViewController = tabBar
         }, completion: nil)
     }
+    
 
     private func promptForCredentialChange() {
         let alert = UIAlertController(title: "Change Credentials", message: "Choose what to change", preferredStyle: .actionSheet)
