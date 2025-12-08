@@ -7,9 +7,9 @@ class FirebaseService {
     static let shared = FirebaseService()
     private let auth = Auth.auth()
     private let db = Firestore.firestore()
-
+    
     private init() {}
-
+    
     // MARK: - Username uniqueness
     func isUsernameTaken(_ username: String, completion: @escaping (Bool) -> Void) {
         let ref = db.collection("usernames").document(username.lowercased())
@@ -17,7 +17,7 @@ class FirebaseService {
             completion(snap?.exists == true)
         }
     }
-
+    
     // MARK: - Register
     func register(username: String, email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {
         isUsernameTaken(username) { taken in
@@ -25,14 +25,14 @@ class FirebaseService {
                 completion(.failure(NSError(domain: "", code: 409, userInfo: [NSLocalizedDescriptionKey: "Username already taken"])))
                 return
             }
-
+            
             self.auth.createUser(withEmail: email, password: password) { result, error in
                 if let error = error { completion(.failure(error)); return }
                 guard let firebaseUser = result?.user else {
                     completion(.failure(NSError(domain:"", code:-1, userInfo: [NSLocalizedDescriptionKey: "No user returned"])))
                     return
                 }
-
+                
                 let profile = NuaMed.User(
                     uid: firebaseUser.uid,
                     username: username,
@@ -47,19 +47,208 @@ class FirebaseService {
                     profileSetup: false,
                     profileImageBase64: nil
                 )
-
+                
                 let batch = self.db.batch()
                 let usernameRef = self.db.collection("usernames").document(username.lowercased())
                 batch.setData(["uid": firebaseUser.uid, "createdAt": FieldValue.serverTimestamp()], forDocument: usernameRef)
                 let profileRef = self.db.collection("users").document(firebaseUser.uid)
                 batch.setData(profile.toDictionary(), forDocument: profileRef)
-
+                
                 batch.commit { err in
                     if let err = err { completion(.failure(err)) }
                     else { completion(.success(profile)) }
                 }
             }
         }
+    }
+    
+    //MARK: Favorites and History
+    private func userDoc(_ uid: String) -> DocumentReference {
+        return db.collection("users").document(uid)
+    }
+
+    private func favoritesCollection(_ uid: String) -> CollectionReference {
+        return userDoc(uid).collection("favorites")
+    }
+
+    private func historyCollection(_ uid: String) -> CollectionReference {
+        return userDoc(uid).collection("history")
+    }
+
+    //MARK: Favorites
+    struct FavoriteItem {
+        let id: String          // productId
+        let name: String
+        let category: String
+        let safetyScore: Int
+    }
+
+    func addFavoriteItem(
+        uid: String,
+        productId: String,
+        name: String,
+        category: String,
+        safetyScore: Int,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let data: [String: Any] = [
+            "name": name,
+            "category": category,
+            "safetyScore": safetyScore,
+            "addedAt": FieldValue.serverTimestamp()
+        ]
+
+        favoritesCollection(uid)
+            .document(productId)
+            .setData(data, merge: true, completion: completion)
+    }
+
+    func removeFavoriteItem(
+        uid: String,
+        productId: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        favoritesCollection(uid)
+            .document(productId)
+            .delete(completion: completion)
+    }
+
+    func fetchFavoriteItems(
+        forUserID uid: String,
+        completion: @escaping (Result<[FavoriteItem], Error>) -> Void
+    ) {
+        favoritesCollection(uid)
+            .order(by: "addedAt", descending: false)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+
+                let items: [FavoriteItem] = snapshot?.documents.compactMap { doc in
+                    let data = doc.data()
+                    guard
+                        let name = data["name"] as? String,
+                        let category = data["category"] as? String,
+                        let safetyScore = data["safetyScore"] as? Int
+                    else {
+                        return nil
+                    }
+
+                    return FavoriteItem(
+                        id: doc.documentID,
+                        name: name,
+                        category: category,
+                        safetyScore: safetyScore
+                    )
+                } ?? []
+
+                completion(.success(items))
+            }
+    }
+
+    func isFavoriteItem(
+        uid: String,
+        productId: String,
+        completion: @escaping (Bool) -> Void
+    ){
+        favoritesCollection(uid)
+            .document(productId)
+            .getDocument { snapshot, error in
+                if let error = error {
+                    print("Error checking favorite item", error)
+                    completion(false)
+                    return
+                }
+                completion(snapshot?.exists == true)
+            }
+    }
+    
+    //MARK: History
+    struct HistoryItem {
+        let id: String
+        let productId: String
+        let name: String
+        let category: String
+        let safetyScore: Int
+        let searchedAt: Date
+    }
+
+    func addHistoryItem(
+        uid: String,
+        productId: String,
+        name: String,
+        category: String,
+        safetyScore: Int,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let data: [String: Any] = [
+                "productId": productId,
+                "name": name,
+                "category": category,
+                "safetyScore": safetyScore,
+                "searchedAt": FieldValue.serverTimestamp()
+            ]
+
+        historyCollection(uid)
+                .document(productId)
+                .setData(data, merge: true, completion: completion)
+    }
+
+    func fetchHistoryItems(
+        forUserID uid: String,
+        completion: @escaping (Result<[HistoryItem], Error>) -> Void
+    ) {
+        historyCollection(uid)
+            .order(by: "searchedAt", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                // 1) Map Firestore docs → HistoryItem
+                let allItems: [HistoryItem] = snapshot?.documents.compactMap { doc in
+                    let data = doc.data()
+                    guard
+                        let productId = data["productId"] as? String,
+                        let name = data["name"] as? String,
+                        let category = data["category"] as? String,
+                        let safetyScore = data["safetyScore"] as? Int,
+                        let ts = data["searchedAt"] as? Timestamp
+                    else {
+                        return nil
+                    }
+                    
+                    return HistoryItem(
+                        id: doc.documentID,
+                        productId: productId,
+                        name: name,
+                        category: category,
+                        safetyScore: safetyScore,
+                        searchedAt: ts.dateValue()
+                    )
+                } ?? []
+                
+                // 2) Keep only the latest entry per productId
+                let latestPerProductDict: [String: HistoryItem] =
+                    allItems.reduce(into: [String: HistoryItem]()) { dict, item in
+                        if let existing = dict[item.productId] {
+                            if item.searchedAt > existing.searchedAt {
+                                dict[item.productId] = item
+                            }
+                        } else {
+                            dict[item.productId] = item
+                        }
+                    }
+                
+                // 3) Back to array, sorted by time desc for the UI
+                let uniqueItems = latestPerProductDict
+                    .map { $0.value }
+                    .sorted { $0.searchedAt > $1.searchedAt }
+                
+                completion(.success(uniqueItems))
+            }
     }
 
     // MARK: - Login
@@ -122,8 +311,6 @@ class FirebaseService {
             }
         }
     }
-
-
 
     // MARK: - Check if profile setup
     func fetchUserProfile(uid: String, completion: @escaping (Result<User, Error>) -> Void) {
