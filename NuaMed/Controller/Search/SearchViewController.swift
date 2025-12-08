@@ -1,4 +1,5 @@
 import UIKit
+import FirebaseAuth
 
 class SearchViewController: UIViewController, SearchViewDelegate {
     private let searchView = SearchView(frame: .zero)
@@ -41,7 +42,6 @@ class SearchViewController: UIViewController, SearchViewDelegate {
         let scanVC = ImageCaptureViewController()
         navigationController?.pushViewController(scanVC, animated: true)
     }
-
     
 }
 
@@ -82,8 +82,24 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
         let detailVC = ProductInfoViewController(
                 name: product.itemName,
+//                category: "General",
                 safetyScore: safetyInt
             )
+        
+        if let uid = Auth.auth().currentUser?.uid {
+            FirebaseService.shared.addHistoryItem(
+                uid: uid,
+                productId: product.itemName,
+                name: product.itemName,
+                category: "General",  // product.category
+                safetyScore: safetyInt,
+//                completion: <#T##((any Error)?) -> Void#>
+            ){ error in
+                if let error = error {
+                    print("Error adding search history item:", error)
+                }
+            }
+        }
         
         navigationController?.pushViewController(detailVC, animated: true)
     }
