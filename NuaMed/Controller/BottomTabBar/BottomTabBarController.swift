@@ -49,7 +49,7 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
         let favoritesNav = UINavigationController(rootViewController: favoritesVC)
         favoritesNav.tabBarItem = UITabBarItem(
             title: "Favorites",
-            image: UIImage(systemName: "star"),
+            image: UIImage(systemName: "star    "),
             selectedImage: UIImage(systemName: "star.fill")
         )
         
@@ -115,6 +115,14 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
             self.view.layoutIfNeeded()
             self.dimmingView.alpha = self.isMenuOpen ? 1 : 0
         })
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("TAB BAR CONTROLLERS:")
+        viewControllers?.enumerated().forEach { (idx, vc) in
+            print("\(idx): \(type(of: vc))  item: \(vc.tabBarItem.title ?? "nil")")
+        }
     }
     
     //MARK: ProfileDrawerDelegate

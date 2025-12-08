@@ -1,63 +1,73 @@
 import UIKit
+import FirebaseAuth
 
 class ProductHistoryViewController: UIViewController {
     let searchHistoryView = ProductHistoryView()
-    private var searchedProducts: [Product] = []
+    var items: [FirebaseService.HistoryItem] = []
     
-    struct Product{
-        let itemName: String
-        let safetyIndex: String
-    }
+    // Everything from Firestore
+    private var allItems: [FirebaseService.HistoryItem] = []
+    // What the table is currently showing
+    private var filteredItems: [FirebaseService.HistoryItem] = []
     
-    override func viewDidLoad(){
+    // Current safety filter range
+    private var currentMinSafety = 0
+    private var currentMaxSafety = 100
+    
+    override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.systemBlue
         title = "Search History"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(
-                image: UIImage(systemName: "chevron.backward"),
-                style: .plain,
-                target: self,
-                action: #selector(closeTapped)
-            )
+            image: UIImage(systemName: "chevron.backward"),
+            style: .plain,
+            target: self,
+            action: #selector(closeTapped)
+        )
         
         let tableView = searchHistoryView.productsTableView
         tableView.dataSource = self
         tableView.delegate = self
         
-        //Category dropdown menu
-        searchHistoryView.categoryDropdown.onCategorySelected = { [weak self] category in self?.filterSearchHistory(by: category)
+        //Configure the safety range slider
+        searchHistoryView.onSafetyRangeChanged = { [weak self] minVal, maxVal in
+            guard let self = self else { return }
+            self.currentMinSafety = Int(minVal.rounded())
+            self.currentMaxSafety = Int(maxVal.rounded())
+            self.applyHistoryFilters()
         }
         
-        searchedProducts = [
-                Product(itemName: "Shampoo", safetyIndex: "85"),
-                Product(itemName: "Face cream", safetyIndex: "72")
-            ]
-            tableView.reloadData()
+        // Category dropdown menu
+        searchHistoryView.categoryDropdown.onCategorySelected = { [weak self] category in
+            self?.filterSearchHistory(by: category)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        //When search result should be added to history, call this function
-        func addSearchedProduct(_ product: Product){
-            searchedProducts.append(product)
+        guard let uid = Auth.auth().currentUser?.uid else {
+            items = []
             searchHistoryView.productsTableView.reloadData()
+            return
         }
-//        
-//        let label = UILabel()
-////            label.text = "Your product history goes here"
-//            label.font = .systemFont(ofSize: 20, weight: .medium)
-//            label.translatesAutoresizingMaskIntoConstraints = false
-//
-//            view.addSubview(label)
-//            NSLayoutConstraint.activate([
-//                label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//                label.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-//            ])
         
-//        //Filter search history array based on the safety index
-//        searchHistoryView.onSafetyRangeChanged = { [weak self] minVal, maxVal in
-//            print("Safety index range: \(minVal) – \(maxVal)")
-//        }
-//
-//        loadSampleFavorites()
+        FirebaseService.shared.fetchHistoryItems(forUserID: uid) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    print("Failed to fetch history items:", error)
+                    self?.allItems = []
+                    self?.filteredItems = []
+                    self?.searchHistoryView.productsTableView.reloadData()
+                    
+                case .success(let history):
+                    self?.allItems = history
+                    self?.applyHistoryFilters()
+                }
+            }
+        }
     }
     
     @objc private func closeTapped() {
@@ -67,22 +77,23 @@ class ProductHistoryViewController: UIViewController {
     override func loadView(){
         view = searchHistoryView
     }
+    
+    private func applyHistoryFilters() {
+        filteredItems = allItems.filter { item in
+            let s = item.safetyScore
+            return s >= currentMinSafety && s <= currentMaxSafety
+        }
+        searchHistoryView.productsTableView.reloadData()
+    }
 }
     
 extension ProductHistoryViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchedProducts.count
+        return filteredItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath)
-//        let product = searchedProducts[indexPath.row]
-//        cell.textLabel?.text = "\(product.itemName)   \(product.safetyIndex)"
-//        cell.textLabel?.textColor = .black
-//        cell.accessoryType = .disclosureIndicator
-//        return cell
-        
-        let product = searchedProducts[indexPath.row]
+        let entry = filteredItems[indexPath.row]
 
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "ProductCell",
@@ -91,24 +102,22 @@ extension ProductHistoryViewController: UITableViewDataSource, UITableViewDelega
             return UITableViewCell()
         }
 
-        cell.configure(name: product.itemName, safetyIndex: product.safetyIndex)
-        // If you later have an image URL or asset, pass it here.
-
+        cell.configure(
+            name: entry.name,
+            safetyIndex: String(entry.safetyScore)
+        )
         cell.accessoryType = .disclosureIndicator
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let product = searchedProducts[indexPath.row]
-        
-        let safetyInt = Int(product.safetyIndex) ?? 0
-        
+        let entry = filteredItems[indexPath.row]
+
         let detailVC = ProductInfoViewController(
-                name: product.itemName,
-                safetyScore: safetyInt
-            )
-        
+            name: entry.name,
+            safetyScore: entry.safetyScore
+        )
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
@@ -119,9 +128,10 @@ extension ProductHistoryViewController: UITableViewDataSource, UITableViewDelega
             cell.backgroundColor = .white
         }
     }
-        
+    
     func filterSearchHistory(by category: String) {
         print("Selected category:", category)
+        // Later: filter `items` by category and reload
     }
     
 }

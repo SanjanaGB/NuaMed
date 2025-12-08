@@ -1,4 +1,5 @@
 import UIKit
+import FirebaseAuth
 
 enum IngredientSafety {
     case safe
@@ -19,7 +20,8 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         Ingredient(name: "Water", safety: .safe, infoText: "Generally considered safe."),
         Ingredient(name: "Sodium Laureth Sulfate", safety: .caution, infoText: "Can cause skin irritation in some individuals."),
         Ingredient(name: "Parabens", safety: .unsafe, infoText: "Linked to hormonal disruptions."),
-        Ingredient(name: "Glycerin", safety: .caution, infoText: "Generally safe but can cause irritation in sensitive skin.")
+        Ingredient(name: "Glycerin", safety: .caution, infoText: "Generally safe but can cause irritation in sensitive skin."),
+        Ingredient(name: "Glycerin2", safety: .caution, infoText: "Generally safe but can cause irritation in sensitive skin.")
     ]
     
     private let productName: String
@@ -30,7 +32,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         self.productName = name
         self.productSafetyScore = safetyScore
         super.init(nibName: nil, bundle: nil)
-        // hidesBottomBarWhenPushed = true
+        hidesBottomBarWhenPushed = true
     }
     
     required init?(coder: NSCoder) {
@@ -62,25 +64,68 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         
         //Check the status of favoriting
         isFavorited = Favorites.shared.checkIfFavorited(named: productName)
+        updateFavoriteStarIcon()
+        
+        if let uid = Auth.auth().currentUser?.uid {
+            FirebaseService.shared.isFavoriteItem(
+                uid: uid,
+                productId: productName
+            ) { [weak self] isFav in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    self.isFavorited = isFav
+                    self.updateFavoriteStarIcon()
+                }
+            }
+        }
         
         //Handle the tapping on the star
         productInfoView.onFavoriteTapped = { [weak self] in
             guard let self = self else { return }
             
+            guard let uid = Auth.auth().currentUser?.uid else {
+                print("No logged-in user, cannot sync favorites.")
+                return
+            }
+            
             if self.isFavorited {
-                //Remove from favorites
+                // Remove locally
                 Favorites.shared.removeProduct(named: self.productName)
                 self.isFavorited = false
-            }else{
+                
+                // Remove from Firestore
+                FirebaseService.shared.removeFavoriteItem(
+                    uid: uid,
+                    productId: self.productName
+                ) { error in
+                    if let error = error {
+                        print("Failed to remove favorite from Firestore:", error)
+                    }
+                }
+            } else {
+                // Add locally
                 let favorite = FavoriteProduct(
                     name: self.productName,
                     safetyScore: self.productSafetyScore
                 )
                 Favorites.shared.addProduct(favorite)
                 self.isFavorited = true
+                
+                // Add to Firestore
+                FirebaseService.shared.addFavoriteItem(
+                    uid: uid,
+                    productId: self.productName,   // use real productId if you have one
+                    name: self.productName,
+                    category: "General",
+                    safetyScore: self.productSafetyScore
+                ) { error in
+                    if let error = error {
+                        print("Failed to save favorite to Firestore:", error)
+                    }
+                }
             }
             
-            //Change the icon from outline to filled
+            // Update star icon after toggle
             self.updateFavoriteStarIcon()
         }
     }
@@ -117,4 +162,3 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
     }
 
 }
-
