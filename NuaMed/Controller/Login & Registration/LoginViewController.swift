@@ -52,8 +52,8 @@ extension LoginViewController: LoginViewDelegate {
                                 self.showAlert(title: "Error", message: "Couldn't fetch profile")
                             case .success(let profile):
                                 if profile.profileSetup {
-                                    let home = SearchViewController()
-                                    self.navigationController?.setViewControllers([home], animated: true)
+                                    self.goToSearchPage()
+
                                 } else {
                                     let alert = UIAlertController(title: "Profile", message: "Set up your profile now?", preferredStyle: .alert)
                                     alert.addAction(UIAlertAction(title: "Set up", style: .default) { _ in
@@ -61,8 +61,7 @@ extension LoginViewController: LoginViewDelegate {
                                         self.navigationController?.pushViewController(vc, animated: true)
                                     })
                                     alert.addAction(UIAlertAction(title: "Skip", style: .cancel) { _ in
-                                        let home = SearchViewController()
-                                        self.navigationController?.setViewControllers([home], animated: true)
+                                        self.goToSearchPage()
                                     })
                                     self.present(alert, animated: true)
                                 }
@@ -131,5 +130,20 @@ extension LoginViewController: LoginViewDelegate {
         }))
         
         self.present(alert, animated: true)
+    }
+    private func goToSearchPage() {
+        guard
+            let windowScene = view.window?.windowScene,
+            let sceneDelegate = windowScene.delegate as? SceneDelegate,
+            let window = sceneDelegate.window
+        else { return }
+
+        let tabBar = BottomTabBarController()
+        tabBar.selectedIndex = 1   // middle tab = Search
+
+        //Animated transition
+        UIView.transition(with: window, duration: 0.3, options: [.transitionFlipFromRight], animations: {
+            window.rootViewController = tabBar
+        }, completion: nil)
     }
 }
