@@ -4,11 +4,11 @@ import FirebaseAuth
 class SearchViewController: UIViewController, SearchViewDelegate {
     private let searchView = SearchView(frame: .zero)
     private var searchedProducts: [Product] = []
-
     
     struct Product{
         let itemName: String
         let safetyIndex: String
+        let pillColor: UIColor
     }
     
     override func viewDidLoad(){
@@ -21,9 +21,14 @@ class SearchViewController: UIViewController, SearchViewDelegate {
         tableView.delegate = self
         
         searchedProducts = [
-                Product(itemName: "Shampoo", safetyIndex: "85"),
-                Product(itemName: "Face cream", safetyIndex: "72")
-            ]
+            Product(itemName: "Shampoo",
+                    safetyIndex: "85",
+                    pillColor: pillColor(for: 85)),
+            Product(itemName: "Face cream",
+                    safetyIndex: "32",
+                    pillColor: pillColor(for: 32))
+        ]
+        
         tableView.reloadData()
     }
     
@@ -51,13 +56,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCell(withIdentifier: "ProductCell", for: indexPath)
-//        let product = searchedProducts[indexPath.row]
-//        cell.textLabel?.text = "\(product.itemName)   \(product.safetyIndex)"
-//        cell.textLabel?.textColor = .black
-//        cell.accessoryType = .disclosureIndicator
-//        return cell
-        let product = searchedProducts[indexPath.row]   // or favoritedProducts, etc.
+        let product = searchedProducts[indexPath.row]
 
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "ProductCell",
@@ -70,21 +69,20 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         cell.configure(name: product.itemName, safetyIndex: product.safetyIndex)
         // If you later have an image URL or asset, pass it here.
 
-        cell.accessoryType = .disclosureIndicator
+        cell.accessoryType = .none
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let product = searchedProducts[indexPath.row]
-        
         let safetyInt = Int(product.safetyIndex) ?? 0
-        
+
         let detailVC = ProductInfoViewController(
-                name: product.itemName,
-//                category: "General",
-                safetyScore: safetyInt
-            )
+            name: product.itemName,
+            safetyScore: safetyInt,
+            pillColor: product.pillColor
+        )
         
         if let uid = Auth.auth().currentUser?.uid {
             FirebaseService.shared.addHistoryItem(
@@ -104,11 +102,19 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
+    //The color of the rows in the Search
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-            if indexPath.row % 2 == 0 {
-                cell.backgroundColor = UIColor.systemGray6
-            } else {
-                cell.backgroundColor = .white
-            }
+        if indexPath.row % 2 == 0 {
+            cell.backgroundColor = UIColor.clear
+        } else {
+            cell.backgroundColor = .clear
         }
+    }
+}
+
+private func pillColor(for score: Int) -> UIColor {
+    // TODO: your real formula here
+    if score < 20 { return .systemRed }
+    if score < 50 { return .systemYellow }
+    return .systemGreen
 }

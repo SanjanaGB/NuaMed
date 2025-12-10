@@ -3,12 +3,10 @@ import FirebaseAuth
 
 class FavoritesViewController: UIViewController {
     let favoritesView = FavoritesView()
-    
+    private var listController: ProductListViewController!
     private var items: [FirebaseService.FavoriteItem] = []
-    
     private var allFavoritedProducts: [FavoriteProduct] = []
     private var displayedFavoritedProducts: [FavoriteProduct] = []
-    
     private var currentMinSafety = 0
     private var currentMaxSafety = 100
     
@@ -17,9 +15,14 @@ class FavoritesViewController: UIViewController {
         view.backgroundColor = UIColor.systemBlue
         title = "Favorites"
         
-        let tableView = favoritesView.productsTableView
-        tableView.dataSource = self
-        tableView.delegate = self
+//        listController = ProductListTableController(tableView: favoritesView.productsTableView)
+        listController = ProductListViewController(tableView: favoritesView.productsTableView)
+        listController.onSelectRow = { [weak self] (row: ProductRow) in
+            guard let self = self else { return }
+            let detailVC = ProductInfoViewController(name: row.name,
+                                                     safetyScore: row.safetyScore)
+            self.navigationController?.pushViewController(detailVC, animated: true)
+        }
         
         //Category dropdown menu
         favoritesView.categoryDropdown.onCategorySelected = { [weak self] category in
@@ -32,8 +35,6 @@ class FavoritesViewController: UIViewController {
             self.currentMaxSafety = Int(maxVal.rounded())
             self.applyFavoritesFilters()
         }
-        
-        loadView()
     }
     
     //Get the products from the Favorites file
@@ -103,60 +104,23 @@ class FavoritesViewController: UIViewController {
             let s = product.safetyScore
             return s >= currentMinSafety && s <= currentMaxSafety
         }
-        favoritesView.productsTableView.reloadData()
+        
+        listController.rows = displayedFavoritedProducts.map { product in
+            ProductRow(
+                id: product.name,
+                name: product.name,
+                safetyScore: product.safetyScore,
+                image: nil
+            )
+        }
     }
 
     override func loadView(){
         view = favoritesView
     }
-}
     
-extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return displayedFavoritedProducts.count
-    }
-    
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let product = displayedFavoritedProducts[indexPath.row]
-        
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: "ProductCell",
-            for: indexPath
-        ) as? ProductTableViewCell else {
-            return UITableViewCell()
-        }
-        
-        cell.configure(name: product.name,
-                       safetyIndex: String(product.safetyScore))
-        cell.accessoryType = .disclosureIndicator
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let item = displayedFavoritedProducts[indexPath.row]
-        
-        let detailVC = ProductInfoViewController(
-            name: item.name,
-            safetyScore: item.safetyScore
-        )
-        
-        navigationController?.pushViewController(detailVC, animated: true)
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath
-    ) {
-        if indexPath.row % 2 == 0 {
-            cell.backgroundColor = UIColor.systemGray6
-        } else {
-            cell.backgroundColor = .white
-        }
-    }
-    
-    func filterFavorites(by category: String) {
+    private func filterFavorites(by category: String) {
         print("Selected category:", category)
-        // In the future, you can filter `items` by category and reload
+        // Later: actually filter allFavoritedProducts by category and call applyFavoritesFilters()
     }
-    
 }

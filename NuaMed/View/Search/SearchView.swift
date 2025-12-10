@@ -115,11 +115,14 @@ class SearchView: UIView {
     
     func setupProductsTableView() {
         productsTableView.tableFooterView = UIView()
-        productsTableView.register(ProductTableViewCell.self, forCellReuseIdentifier: "ProductCell")
-        productsTableView.isScrollEnabled = true
-        productsTableView.translatesAutoresizingMaskIntoConstraints = false
-        productsTableView.backgroundColor = .white
-        addSubview(productsTableView)
+            productsTableView.register(ProductTableViewCell.self, forCellReuseIdentifier: "ProductCell")
+            productsTableView.isScrollEnabled = true
+            productsTableView.translatesAutoresizingMaskIntoConstraints = false
+            productsTableView.rowHeight = 88
+            productsTableView.estimatedRowHeight = 88
+            productsTableView.separatorStyle = .none
+            productsTableView.backgroundColor = .clear
+            addSubview(productsTableView)
     }
     
     func initConstraints() {
@@ -156,10 +159,10 @@ class SearchView: UIView {
             safetyIndexLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             //Products table
-            productsTableView.topAnchor.constraint(equalTo: safetyIndexLabel.bottomAnchor, constant: 16),
+            productsTableView.topAnchor.constraint(equalTo: safetyIndexLabel.bottomAnchor, constant: 1),
             productsTableView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             productsTableView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            productsTableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            productsTableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
     }
     
