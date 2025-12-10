@@ -1,0 +1,40 @@
+# Xcode
+DerivedData/
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+
+# CocoaPods
+Pods/
+
+# Firebase config file
+GoogleService-Info.plist
+
+# Build
+build/
+*.ipa
+
+# macOS
+.DS_Store
+
+# Xcode project files
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+DerivedData/
+
+# Schemes (avoid committing API keys)
+NuaMed.xcodeproj/xcshareddata/xcschemes/
+*.xcscheme
+
+# SwiftPM
+.build/
+
+# CocoaPods
+Pods/
+Podfile.lock
