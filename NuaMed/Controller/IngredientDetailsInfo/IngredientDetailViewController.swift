@@ -13,14 +13,12 @@ class IngredientDetailViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        detailView.configure(title: ingredient.name,
-                             body: ingredient.infoText)
-        
+                
+        detailView.configure(title: ingredient.name, body: ingredient.infoText)
         detailView.onCloseTapped = { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }
-        
+                
         detailView.onBackgroundTapped = { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }

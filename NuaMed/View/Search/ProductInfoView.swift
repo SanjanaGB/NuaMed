@@ -1,6 +1,9 @@
 import UIKit
 
 class ProductInfoView: UIView {
+    let titleLabel = UILabel()
+    let ingredientsCardView = UIView()
+    
     var productImageView: UIImageView!
     var productNameLabel: UILabel!
     
@@ -20,9 +23,6 @@ class ProductInfoView: UIView {
     var allergensIconView: UIImageView!
     var allergensBodyLabel: UILabel!
     
-//    private let scrollView = UIScrollView!
-//    private let contentView = UIView!
-    
     //Table of ingredients
     let ingredientsTableView = UITableView()
     
@@ -35,23 +35,46 @@ class ProductInfoView: UIView {
         setupFavoriteStarIcon()
         setupProductNameLabel()
         setupSafetyRatingLabel()
-      //  setupSafetyIndexLabel()
         setupSafetyPill()
         
         //Middle 2/3 view
         setupAllergensCard()
         
         //Bottom 3/3 view: table of ingredients
-        setupIngredientsLabel()
         setupIngredientsTableView()
-    
+        setupIngredientsLabel()
         initConstraints()
     }
     
-    func configure(name: String, safetyScore: Int, allergens: [String]){
+    func configure(name: String, safetyScore: Int, allergens: [String], pillColor: UIColor? = nil) {
         productNameLabel.text = name
         safetyIndexLabel.text = "\(safetyScore)"
         allergensBodyLabel.text = allergens.joined(separator: "\n")
+        
+        let style = ProductInfoView.safetyStyle(for: safetyScore)
+        
+        // If a pillColor is passed from Search, use that.
+        // Otherwise fall back to style.background.
+        let background = pillColor ?? style.background
+        safetyPillView.backgroundColor = background
+        
+        if let color = pillColor {
+            safetyPillView.backgroundColor = color
+            
+            //Adjust text colors based on the pill color
+            if color == .systemYellow {
+                safetyLabel.textColor = .black
+                safetyIndexLabel.textColor = .black
+            } else {
+                safetyLabel.textColor = .white
+                safetyIndexLabel.textColor = .white
+            }
+        } else {
+            let style = ProductInfoView.safetyStyle(for: safetyScore)
+            safetyPillView.backgroundColor = style.background
+            safetyLabel.textColor = style.text
+            safetyIndexLabel.textColor = style.text
+        }
     }
     
     //Top 1/3 view
@@ -74,7 +97,6 @@ class ProductInfoView: UIView {
         favoriteStarImageView.isUserInteractionEnabled = true
         let tap = UITapGestureRecognizer(target: self, action: #selector(favoriteStarTapped))
         favoriteStarImageView.addGestureRecognizer(tap)
-
         addSubview(favoriteStarImageView)
     }
     
@@ -154,42 +176,48 @@ class ProductInfoView: UIView {
     
     //Bottom 3/3 view: table of ingredients
     func setupIngredientsTableView() {
+        ingredientsCardView.backgroundColor = .white
+        ingredientsCardView.layer.cornerRadius = 24
+        ingredientsCardView.clipsToBounds = true
+        ingredientsCardView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(ingredientsCardView)
+        
+        // Configure the table INSIDE the card
         ingredientsTableView.tableFooterView = UIView()
-       // ingredientsTableView.layer.cornerRadius = 16
         ingredientsTableView.register(IngredientTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
         ingredientsTableView.isScrollEnabled = true
         ingredientsTableView.clipsToBounds = true
         ingredientsTableView.translatesAutoresizingMaskIntoConstraints = false
-        ingredientsTableView.backgroundColor = .white
-        addSubview(ingredientsTableView)
+        ingredientsTableView.backgroundColor = .clear
+        ingredientsCardView.addSubview(ingredientsTableView)
     }
     
     func setupIngredientsLabel(){
         ingredientsLabel = UILabel()
         ingredientsLabel.text = "Natural & Artificial Ingredients"
         ingredientsLabel.font = UIFont.boldSystemFont(ofSize: 20)
-        ingredientsLabel.textColor = .white
+        ingredientsLabel.textColor = .black
         ingredientsLabel.textAlignment = .center
         ingredientsLabel.numberOfLines = 0
         ingredientsLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(ingredientsLabel)
+        ingredientsCardView.addSubview(ingredientsLabel)
     }
     
     func initConstraints() {
         NSLayoutConstraint.activate([
             productImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 32),
             productImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            productImageView.widthAnchor.constraint(equalToConstant: 120),
-            productImageView.heightAnchor.constraint(equalToConstant: 120),
+            productImageView.widthAnchor.constraint(equalToConstant: 80),
+            productImageView.heightAnchor.constraint(equalToConstant: 80),
             
             //Star
-            favoriteStarImageView.topAnchor.constraint(equalTo: productImageView.topAnchor, constant: -4),
-            favoriteStarImageView.trailingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 4),
+            favoriteStarImageView.topAnchor.constraint(equalTo: productImageView.topAnchor, constant: 1),
+            favoriteStarImageView.trailingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 64),
             favoriteStarImageView.widthAnchor.constraint(equalToConstant: 24),
             favoriteStarImageView.heightAnchor.constraint(equalToConstant: 24),
             
             //Product name
-            productNameLabel.topAnchor.constraint(equalTo: productImageView.bottomAnchor, constant: 16),
+            productNameLabel.topAnchor.constraint(equalTo: productImageView.bottomAnchor, constant: 1),
             productNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
             productNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
         
@@ -210,9 +238,9 @@ class ProductInfoView: UIView {
             safetyIndexLabel.centerYAnchor.constraint(equalTo: safetyPillView.centerYAnchor),
             
             //Allergens container/card
-            rectangleContainer.topAnchor.constraint(equalTo: safetyRatingLabel.bottomAnchor, constant: 24),
-            rectangleContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            rectangleContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+            rectangleContainer.topAnchor.constraint(equalTo: safetyRatingLabel.bottomAnchor, constant: 20),
+            rectangleContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            rectangleContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
             
             allergensIconView.topAnchor.constraint(equalTo: rectangleContainer.topAnchor, constant: 16),
             allergensIconView.leadingAnchor.constraint(equalTo: rectangleContainer.leadingAnchor, constant: 16),
@@ -228,16 +256,22 @@ class ProductInfoView: UIView {
             allergensBodyLabel.trailingAnchor.constraint(equalTo: rectangleContainer.trailingAnchor, constant: -16),
             allergensBodyLabel.bottomAnchor.constraint(equalTo: rectangleContainer.bottomAnchor, constant: -16),
             
-            //Ingredients header
-            ingredientsLabel.topAnchor.constraint(equalTo: rectangleContainer.bottomAnchor, constant: 24),
-            ingredientsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            ingredientsLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -24),
+            //Header inside the card
+            ingredientsLabel.topAnchor.constraint(equalTo: ingredientsCardView.topAnchor, constant: 16),
+            ingredientsLabel.leadingAnchor.constraint(equalTo: ingredientsCardView.leadingAnchor, constant: 16),
+            ingredientsLabel.trailingAnchor.constraint(equalTo: ingredientsCardView.trailingAnchor, constant: -16),
             
-            //Ingredients table
+            //Card around the list
+            ingredientsCardView.topAnchor.constraint(equalTo: rectangleContainer.bottomAnchor, constant: 20),
+            ingredientsCardView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            ingredientsCardView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            ingredientsCardView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -24),
+
+            //Table inside the card, under the title
             ingredientsTableView.topAnchor.constraint(equalTo: ingredientsLabel.bottomAnchor, constant: 8),
-            ingredientsTableView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            ingredientsTableView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            ingredientsTableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            ingredientsTableView.leadingAnchor.constraint(equalTo: ingredientsCardView.leadingAnchor),
+            ingredientsTableView.trailingAnchor.constraint(equalTo: ingredientsCardView.trailingAnchor),
+            ingredientsTableView.bottomAnchor.constraint(equalTo: ingredientsCardView.bottomAnchor)
         ])
     }
     
@@ -253,5 +287,23 @@ class ProductInfoView: UIView {
     //Internal handler for star tap
     @objc func favoriteStarTapped() {
         onFavoriteTapped?()
+    }
+}
+
+private extension ProductInfoView {
+    struct SafetyStyle {
+        let background: UIColor
+        let text: UIColor
+    }
+    
+    static func safetyStyle(for score: Int) -> SafetyStyle {
+        switch score {
+        case ..<40:
+            return SafetyStyle(background: .systemRed, text: .white)
+        case 40..<70:
+            return SafetyStyle(background: .systemYellow, text: .black)
+        default:
+            return SafetyStyle(background: .systemGreen, text: .white)
+        }
     }
 }
