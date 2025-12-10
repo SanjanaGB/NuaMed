@@ -46,11 +46,6 @@
 		FD72C553DB23910B944D379B /* Pods-NuaMedTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMedTests.debug.xcconfig"; path = "Target Support Files/Pods-NuaMedTests/Pods-NuaMedTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		893E3A462EB5332300FCBDAA /* NuaMed */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		893E3A6C2EB5332900FCBDAA /* Exceptions for "NuaMed" folder in "NuaMed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
