@@ -21,9 +21,10 @@ class FavoritesView: UIView {
         let slider = MultiSlider()
         slider.minimumValue = 0
         slider.maximumValue = 100
-        slider.value = [50, 100]
+        slider.value = [0, 100]
         slider.orientation = .horizontal
-        slider.isContinuous = true              //Update while a user drags the slider
+        //Update while a user drags the slider
+        slider.isContinuous = true
         slider.snapStepSize = 1
         
         //Style
@@ -33,7 +34,7 @@ class FavoritesView: UIView {
         slider.hasRoundTrackEnds = true
         
         //Values in the bubbles
-        slider.valueLabelPosition = .bottom       // .top / .bottom / .left / .right
+        slider.valueLabelPosition = .bottom
         slider.isValueLabelRelative = false
         slider.valueLabelColor = .white
         slider.valueLabelFont = .boldSystemFont(ofSize: 14)
@@ -144,7 +145,10 @@ class FavoritesView: UIView {
         productsTableView.register(ProductTableViewCell.self, forCellReuseIdentifier: "ProductCell")
         productsTableView.isScrollEnabled = true
         productsTableView.translatesAutoresizingMaskIntoConstraints = false
-        productsTableView.backgroundColor = .white
+        productsTableView.rowHeight = 88
+        productsTableView.estimatedRowHeight = 88
+        productsTableView.separatorStyle = .none
+        productsTableView.backgroundColor = .clear
         addSubview(productsTableView)
     }
     
@@ -182,10 +186,10 @@ class FavoritesView: UIView {
             safetyIndexLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             //Products table
-            productsTableView.topAnchor.constraint(equalTo: safetyIndexLabel.bottomAnchor, constant: 16),
+            productsTableView.topAnchor.constraint(equalTo: safetyIndexLabel.bottomAnchor, constant: 1),
             productsTableView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             productsTableView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            productsTableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            productsTableView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         ])
     }
     

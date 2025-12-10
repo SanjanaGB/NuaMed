@@ -12,8 +12,15 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
         super.viewDidLoad()
         tabBar.isTranslucent = false
         
-        delegate = self
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemGray5
+        tabBar.standardAppearance = appearance
+        if #available(iOS 15.0, *) {
+            tabBar.scrollEdgeAppearance = appearance
+        }
         
+        delegate = self
         setupTabs()
         setupDrawer()
     }
@@ -49,7 +56,7 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
         let favoritesNav = UINavigationController(rootViewController: favoritesVC)
         favoritesNav.tabBarItem = UITabBarItem(
             title: "Favorites",
-            image: UIImage(systemName: "star    "),
+            image: UIImage(systemName: "star"),
             selectedImage: UIImage(systemName: "star.fill")
         )
         
@@ -62,15 +69,14 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
     private func setupDrawer() {
         drawerVC.delegate = self
         
-        addChild(drawerVC)
+//        addChild(drawerVC)
         view.addSubview(drawerVC.view)
         drawerVC.view.translatesAutoresizingMaskIntoConstraints = false
-        
-        //Start fully off-screen to the left
+
         menuLeadingConstraint = drawerVC.view
             .leadingAnchor
-            .constraint(equalTo: view.leadingAnchor, constant: -menuWidth)   //hide the navigation drawer all the way to the left
-        
+            .constraint(equalTo: view.leadingAnchor, constant: -menuWidth)
+
         NSLayoutConstraint.activate([
             drawerVC.view.widthAnchor.constraint(equalToConstant: menuWidth),
             drawerVC.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -78,21 +84,20 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
             menuLeadingConstraint
         ])
         
-        drawerVC.didMove(toParent: self)
+//        drawerVC.didMove(toParent: self)
         
         //Dimming overlay
         dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.2)
         dimmingView.alpha = 0
         view.insertSubview(dimmingView, belowSubview: drawerVC.view)
         dimmingView.translatesAutoresizingMaskIntoConstraints = false
-        
         NSLayoutConstraint.activate([
-            dimmingView.topAnchor.constraint(equalTo: view.topAnchor),
-            dimmingView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             dimmingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            dimmingView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            dimmingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            dimmingView.topAnchor.constraint(equalTo: view.topAnchor),
+            dimmingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        
+
         let tap = UITapGestureRecognizer(target: self, action: #selector(toggleMenu))
         dimmingView.addGestureRecognizer(tap)
     }
@@ -119,7 +124,6 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("TAB BAR CONTROLLERS:")
         viewControllers?.enumerated().forEach { (idx, vc) in
             print("\(idx): \(type(of: vc))  item: \(vc.tabBarItem.title ?? "nil")")
         }

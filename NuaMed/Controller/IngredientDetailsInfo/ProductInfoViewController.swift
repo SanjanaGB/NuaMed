@@ -1,21 +1,12 @@
 import UIKit
 import FirebaseAuth
 
-enum IngredientSafety {
-    case safe
-    case unsafe
-    case caution
-}
-
-struct Ingredient {
-    let name: String
-    let safety: IngredientSafety
-    let infoText: String
-}
-
 class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let productInfoView = ProductInfoView()
+    //Get the safety index pill color through this variable
+    private let pillColor: UIColor
     
+    // Temporary hard-coded ingredient list
     private let ingredients: [Ingredient] = [
         Ingredient(name: "Water", safety: .safe, infoText: "Generally considered safe."),
         Ingredient(name: "Sodium Laureth Sulfate", safety: .caution, infoText: "Can cause skin irritation in some individuals."),
@@ -28,9 +19,10 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
     private let productSafetyScore: Int
     private var isFavorited = false
     
-    init(name: String, safetyScore: Int) {
+    init(name: String, safetyScore: Int, pillColor: UIColor? = nil) {
         self.productName = name
         self.productSafetyScore = safetyScore
+        self.pillColor = pillColor ?? .systemGray   //default gray color if no other color passed
         super.init(nibName: nil, bundle: nil)
         hidesBottomBarWhenPushed = true
     }
@@ -47,22 +39,24 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         super.viewDidLoad()
         view.backgroundColor = .systemBlue
         
-        //Register custom cell
-        productInfoView.ingredientsTableView.register(
-            IngredientTableViewCell.self,
-            forCellReuseIdentifier: "IngredientCell"
-        )
-        
-        productInfoView.ingredientsTableView.dataSource = self
-        productInfoView.ingredientsTableView.delegate = self
+        let tableView = productInfoView.ingredientsTableView
+        tableView.register(IngredientTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
+        tableView.dataSource = self
+        tableView.delegate = self
+
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = .clear
+        tableView.rowHeight = 47
         
         productInfoView.configure(
             name: productName,
             safetyScore: productSafetyScore,
-            allergens: ["Perfume", "Benzyl Alcohol"]
+            allergens: ["Perfume", "Benzyl Alcohol"],
+            pillColor: pillColor
+            
         )
         
-        //Check the status of favoriting
+        // Favorite state from local + Firestore
         isFavorited = Favorites.shared.checkIfFavorited(named: productName)
         updateFavoriteStarIcon()
         
@@ -79,21 +73,18 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
             }
         }
         
-        //Handle the tapping on the star
+        // Favorite button handler
         productInfoView.onFavoriteTapped = { [weak self] in
             guard let self = self else { return }
-            
             guard let uid = Auth.auth().currentUser?.uid else {
                 print("No logged-in user, cannot sync favorites.")
                 return
             }
             
             if self.isFavorited {
-                // Remove locally
                 Favorites.shared.removeProduct(named: self.productName)
                 self.isFavorited = false
                 
-                // Remove from Firestore
                 FirebaseService.shared.removeFavoriteItem(
                     uid: uid,
                     productId: self.productName
@@ -103,7 +94,6 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
                     }
                 }
             } else {
-                // Add locally
                 let favorite = FavoriteProduct(
                     name: self.productName,
                     safetyScore: self.productSafetyScore
@@ -111,10 +101,9 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
                 Favorites.shared.addProduct(favorite)
                 self.isFavorited = true
                 
-                // Add to Firestore
                 FirebaseService.shared.addFavoriteItem(
                     uid: uid,
-                    productId: self.productName,   // use real productId if you have one
+                    productId: self.productName,
                     name: self.productName,
                     category: "General",
                     safetyScore: self.productSafetyScore
@@ -125,7 +114,6 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
                 }
             }
             
-            // Update star icon after toggle
             self.updateFavoriteStarIcon()
         }
     }
@@ -135,30 +123,38 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         productInfoView.updateFavoriteStarIcon(systemName: imageName)
     }
     
-    //MARK: UITableViewDataSource
+    // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return ingredients.count
     }
     
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "IngredientCell",
             for: indexPath
-        ) as! IngredientTableViewCell
+        ) as? IngredientTableViewCell else {
+            return UITableViewCell()
+        }
         
         let ingredient = ingredients[indexPath.row]
         cell.configure(with: ingredient)
+        
+        cell.onInfoTapped = { [weak self] in
+            guard let self = self else { return }
+            // Only show if there is detail text
+            guard !ingredient.infoText.isEmpty else { return }
+            let detailVC = IngredientDetailViewController(ingredient: ingredient)
+            self.present(detailVC, animated: true, completion: nil)
+        }
+        
         return cell
     }
     
-    //MARK: UITableViewDelegate
+    // MARK: - UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ingredient = ingredients[indexPath.row]
         let detailVC = IngredientDetailViewController(ingredient: ingredient)
         present(detailVC, animated: true, completion: nil)
-        
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
 }
