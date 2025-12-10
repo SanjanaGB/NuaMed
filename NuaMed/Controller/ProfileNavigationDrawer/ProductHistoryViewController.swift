@@ -25,8 +25,15 @@ class ProductHistoryViewController: UIViewController {
         listController = ProductListViewController(tableView: searchHistoryView.productsTableView)
         listController.onSelectRow = { [weak self] (row: ProductRow) in
             guard let self = self else { return }
-            let detailVC = ProductInfoViewController(name: row.name,
-                                                     safetyScore: row.safetyScore)
+            
+            let detailVC = ProductInfoViewController(
+                name: row.name,
+                safetyScore: row.safetyScore,
+                pillColor: self.colorFor(score: row.safetyScore),
+                ingredientInfoJSON: "{}",   // placeholders because history does not store these
+                safetyJSON: "{}"
+            )
+            
             self.navigationController?.pushViewController(detailVC, animated: true)
         }
         
@@ -51,6 +58,12 @@ class ProductHistoryViewController: UIViewController {
         }
     }
     
+    private func colorFor(score: Int) -> UIColor {
+        if score < 30 { return .systemRed }
+        if score < 60 { return .systemYellow }
+        return .systemGreen
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -95,7 +108,9 @@ class ProductHistoryViewController: UIViewController {
                 id: entry.productId,
                 name: entry.name,
                 safetyScore: entry.safetyScore,
-                image: nil
+                image: nil,
+                ingredientInfoJSON: entry.ingredientInfoJSON,
+                safetyJSON: entry.safetyJSON
             )
         }
     }

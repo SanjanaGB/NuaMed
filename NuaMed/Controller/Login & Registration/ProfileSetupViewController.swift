@@ -24,6 +24,11 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
         loadUserProfile()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadUserProfile()     // Always refresh when returning to the screen
+    }
+
     
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -95,7 +100,11 @@ class ProfileSetupViewController: UIViewController, UITextFieldDelegate {
                         self.profileView.dobField.text = nil
                     }
                     if let age = user.age { self.profileView.ageField.text = "\(age)" }
-
+                    
+                    self.profileView.allergies.removeAll()
+                       self.profileView.medicalConditions.removeAll()
+                       self.profileView.medications.removeAll()
+                    
                     self.profileView.allergies = user.allergies
                     self.profileView.medicalConditions = user.medicalConditions
                     self.profileView.medications = user.medications
@@ -246,10 +255,16 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
                     user.profileSetup = true
                     
                     func saveUser() {
-                        FirebaseService.shared.saveProfile(uid: uid, profile: user) { err2 in
-                            self.handleProfileSaveResult(err: err2)
-                        }
-                    }
+                                        FirebaseService.shared.saveProfile(uid: uid, profile: user) { err2 in
+
+                                            if err2 == nil {
+                                                // 🔥🔥 IMPORTANT FIX — Update local cached user
+                                                UserProfileManager.shared.updateCurrentUser(user)
+                                            }
+
+                                            self.handleProfileSaveResult(err: err2)
+                                        }
+                                    }
                     
                     if let image = profileImage, self.isProfileImageSet {
                         FirebaseService.shared.saveProfileImage(uid: uid, image: image) { err in
@@ -291,17 +306,45 @@ extension ProfileSetupViewController: ProfileSetupViewDelegate {
             if let err = err {
                 self.showAlert(title: "Error", message: err.localizedDescription)
             } else {
+                // SUCCESS: Immediately reload updated profile from Firebase
+                if let uid = Auth.auth().currentUser?.uid {
+                    FirebaseService.shared.fetchUserProfile(uid: uid) { result in
+                        DispatchQueue.main.async {
+                            if case .success(let updatedUser) = result {
+                                // Update local cache
+                                UserProfileManager.shared.updateCurrentUser(updatedUser)
+                                
+                                // Update UI fields
+                                self.profileView.nameField.text = updatedUser.name
+                                self.profileView.genderField.text = updatedUser.gender
+                                self.profileView.allergies = updatedUser.allergies
+                                self.profileView.medicalConditions = updatedUser.medicalConditions
+                                self.profileView.medications = updatedUser.medications
+                                
+                                if let dob = updatedUser.dob {
+                                    let df = DateFormatter()
+                                    df.dateFormat = "MM/dd/yyyy"
+                                    self.profileView.dobField.text = df.string(from: dob)
+                                }
+                                if let age = updatedUser.age {
+                                    self.profileView.ageField.text = "\(age)"
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Success message
                 let alert = UIAlertController(title: "Success", message: "Profile saved successfully.", preferredStyle: .alert)
                 self.present(alert, animated: true) {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        alert.dismiss(animated: true){
-                            //self.goToSearchPage()
-                        }
+                        alert.dismiss(animated: true)
                     }
                 }
             }
         }
     }
+
 
     //MARK: Helper class to go to Search page after user clicks on "Save User" button
     private func goToSearchPage() {

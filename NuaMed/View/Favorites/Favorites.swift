@@ -3,6 +3,8 @@ import Foundation
 struct FavoriteProduct{
     let name: String
     let safetyScore: Int
+    let ingredientInfoJSON: String
+    let safetyJSON: String
 }
 
 final class Favorites{

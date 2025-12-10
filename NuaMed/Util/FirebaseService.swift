@@ -81,6 +81,8 @@ class FirebaseService {
         let name: String
         let category: String
         let safetyScore: Int
+        let ingredientInfoJSON: String
+        let safetyJSON: String
     }
 
     func addFavoriteItem(
@@ -89,13 +91,18 @@ class FirebaseService {
         name: String,
         category: String,
         safetyScore: Int,
+        ingredientInfoJSON: String,
+        safetyJSON: String,
         completion: @escaping (Error?) -> Void
     ) {
         let data: [String: Any] = [
             "name": name,
             "category": category,
             "safetyScore": safetyScore,
+            "ingredientInfoJSON": ingredientInfoJSON,
+            "safetyJSON": safetyJSON,
             "addedAt": FieldValue.serverTimestamp()
+            
         ]
 
         favoritesCollection(uid)
@@ -127,21 +134,25 @@ class FirebaseService {
 
                 let items: [FavoriteItem] = snapshot?.documents.compactMap { doc in
                     let data = doc.data()
-                    guard
-                        let name = data["name"] as? String,
-                        let category = data["category"] as? String,
-                        let safetyScore = data["safetyScore"] as? Int
-                    else {
-                        return nil
-                    }
+
+                    let name = data["name"] as? String ?? "Empty"
+
+                    let category = data["category"] as? String ?? "General"
+                    let safetyScore = data["safetyScore"] as? Int ?? 0
+
+                    let ingredientInfoJSON = data["ingredientInfoJSON"] as? String ?? "{}"
+                    let safetyJSON = data["safetyJSON"] as? String ?? "{}"
 
                     return FavoriteItem(
                         id: doc.documentID,
                         name: name,
                         category: category,
-                        safetyScore: safetyScore
+                        safetyScore: safetyScore,
+                        ingredientInfoJSON: ingredientInfoJSON,
+                        safetyJSON: safetyJSON
                     )
                 } ?? []
+
 
                 completion(.success(items))
             }
@@ -172,6 +183,8 @@ class FirebaseService {
         let category: String
         let safetyScore: Int
         let searchedAt: Date
+        let ingredientInfoJSON: String
+        let safetyJSON: String
     }
 
     func addHistoryItem(
@@ -180,20 +193,25 @@ class FirebaseService {
         name: String,
         category: String,
         safetyScore: Int,
+        ingredientInfoJSON: String,
+        safetyJSON: String,
         completion: @escaping (Error?) -> Void
     ) {
         let data: [String: Any] = [
-                "productId": productId,
-                "name": name,
-                "category": category,
-                "safetyScore": safetyScore,
-                "searchedAt": FieldValue.serverTimestamp()
-            ]
+            "productId": productId,
+            "name": name,
+            "category": category,
+            "safetyScore": safetyScore,
+            "ingredientInfoJSON": ingredientInfoJSON,
+            "safetyJSON": safetyJSON,
+            "searchedAt": FieldValue.serverTimestamp()
+        ]
 
         historyCollection(uid)
-                .document(productId)
-                .setData(data, merge: true, completion: completion)
+            .document(productId)
+            .setData(data, merge: true, completion: completion)
     }
+
 
     func fetchHistoryItems(
         forUserID uid: String,
@@ -207,9 +225,9 @@ class FirebaseService {
                     return
                 }
                 
-                // 1) Map Firestore docs → HistoryItem
                 let allItems: [HistoryItem] = snapshot?.documents.compactMap { doc in
                     let data = doc.data()
+                    
                     guard
                         let productId = data["productId"] as? String,
                         let name = data["name"] as? String,
@@ -220,34 +238,34 @@ class FirebaseService {
                         return nil
                     }
                     
+                    let ingredientInfoJSON = data["ingredientInfoJSON"] as? String ?? "{}"
+                    let safetyJSON = data["safetyJSON"] as? String ?? "{}"
+                    
                     return HistoryItem(
                         id: doc.documentID,
                         productId: productId,
                         name: name,
                         category: category,
                         safetyScore: safetyScore,
-                        searchedAt: ts.dateValue()
+                        searchedAt: ts.dateValue(),
+                        ingredientInfoJSON: ingredientInfoJSON,
+                        safetyJSON: safetyJSON
                     )
                 } ?? []
                 
-                // 2) Keep only the latest entry per productId
-                let latestPerProductDict: [String: HistoryItem] =
-                    allItems.reduce(into: [String: HistoryItem]()) { dict, item in
-                        if let existing = dict[item.productId] {
-                            if item.searchedAt > existing.searchedAt {
-                                dict[item.productId] = item
-                            }
-                        } else {
+                // Ensure only latest per productId
+                let latestDict = allItems.reduce(into: [String: HistoryItem]()) { dict, item in
+                    if let existing = dict[item.productId] {
+                        if item.searchedAt > existing.searchedAt {
                             dict[item.productId] = item
                         }
+                    } else {
+                        dict[item.productId] = item
                     }
+                }
                 
-                // 3) Back to array, sorted by time desc for the UI
-                let uniqueItems = latestPerProductDict
-                    .map { $0.value }
-                    .sorted { $0.searchedAt > $1.searchedAt }
-                
-                completion(.success(uniqueItems))
+                let finalList = latestDict.values.sorted { $0.searchedAt > $1.searchedAt }
+                completion(.success(finalList))
             }
     }
 
@@ -485,6 +503,24 @@ class FirebaseService {
             }
         }
     }
+    
+    func updateUserHealthData(uid: String,
+                              allergies: [String],
+                              medications: [String],
+                              medicalConditions: [String],
+                              completion: @escaping (Error?) -> Void)
+    {
+        let data: [String: Any] = [
+            "allergies": allergies,
+            "medications": medications,
+            "medicalConditions": medicalConditions
+        ]
+
+        db.collection("users").document(uid).updateData(data) { error in
+            completion(error)
+        }
+    }
+
     
     // MARK: - Delete User Account
     func deleteUser(uid: String, completion: @escaping (Error?) -> Void) {
