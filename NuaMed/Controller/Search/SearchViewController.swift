@@ -83,34 +83,26 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
         navigationItem.rightBarButtonItem = button
     }
 
-    @objc private func clearHistoryTapped() {
+    @objc func clearHistoryTapped() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
-        let alert = UIAlertController(
-            title: "Delete All History?",
-            message: "This action cannot be undone.",
-            preferredStyle: .alert
-        )
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
-            
-            FirebaseService.shared.deleteAllHistory(uid: uid) { error in
-                if error == nil {
-                    self.allProducts.removeAll()
-                    self.filteredProducts.removeAll()
-                    DispatchQueue.main.async {
-                        self.searchView.productsTableView.reloadData()
-                    }
-                } else {
-                    print("Delete error:", error!)
+        FirebaseService.shared.deleteAllHistory(uid: uid) { [weak self] error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print(" Delete history failed:", error)
+                    return
                 }
-            }
-        })
 
-        present(alert, animated: true)
+                print(" History successfully deleted")
+
+                // Clear UI list
+                self?.allProducts = []
+                self?.filteredProducts = []
+                self?.searchView.productsTableView.reloadData()
+            }
+        }
     }
+
 
     // MARK: - STATUS LABEL
     private func setupAIStatusLabel() {

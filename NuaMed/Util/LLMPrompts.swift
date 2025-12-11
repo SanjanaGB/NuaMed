@@ -7,38 +7,54 @@ struct LLMPrompts {
     // ============================================================
     static func classifyCategory(name: String, description: String) -> String {
         """
-        You MUST classify this product into EXACTLY ONE of the following categories:
+        Your task is to classify a product into EXACTLY ONE of the following categories:
 
         • "Food Product"
         • "Cosmetic Item"
         • "Medication"
+        • "Unknown"
 
         PRODUCT NAME: "\(name)"
         PRODUCT DESCRIPTION: "\(description)"
 
-        HARD RULES:
-        - If it contains "soap", "body wash", "shampoo", "handwash", "detergent", "cleanser", 
-          "face wash", "lotion", "cream", "moisturizer", "shaving", "deodorant", 
-          "dettol", "savlon", "olay", "nivea", "ponds"
-          → ALWAYS "Cosmetic Item".
+        -------------------------
+        HARD CLASSIFICATION RULES
+        -------------------------
 
-        - If it contains "antiseptic", "disinfectant"
-          → ALWAYS "Cosmetic Item".
+        1. COSMETIC ITEM  
+           If the name contains ANY of the following keywords (case-insensitive):  
+           soap, body wash, shampoo, conditioner, cleanser, face wash, handwash,
+           lotion, cream, moisturizer, shaving, deodorant, perfume, toner,
+           sunscreen, serum, makeup, dettol, savlon, olay, nivea, ponds  
+           → MUST return: "Cosmetic Item".
 
-        - If it treats a medical condition (tablet, capsule, syrup, antibiotic, ointment)
-          → ALWAYS "Medication".
+        2. MEDICATION  
+           If the item is a tablet, capsule, syrup, injection, ointment, antibiotic,
+           antihistamine, painkiller, or is meant to treat ANY medical condition  
+           → MUST return: "Medication".
 
-        - If it is edible or drinkable (any food, beverage, supplement, candy)
-          → ALWAYS "Food Product".
+        3. FOOD PRODUCT  
+           If the item is edible or drinkable (foods, snacks, beverages, spices,
+           chocolates, juices, supplements, oils)  
+           → MUST return: "Food Product".
 
-        - NEVER classify non-edible items as food.
+        4. UNKNOWN (IMPORTANT)  
+           If the item is NOT cosmetic, food, or medication:  
+           Examples: chair, laptop, book, pillow, candle, charger, bottle, toy  
+           → MUST return: "Unknown".  
+           Do NOT force a wrong category.
 
-        YOU MUST RETURN VALID JSON ONLY:
+        -------------------------
+        OUTPUT STRICT JSON ONLY:
+        -------------------------
         {
-            "category": "<Food Product | Cosmetic Item | Medication>"
+          "category": "<Food Product | Cosmetic Item | Medication | Unknown>"
         }
+
+        No explanation. No extra text. JSON only.
         """
     }
+
 
 
     // ============================================================
@@ -46,14 +62,20 @@ struct LLMPrompts {
     // ============================================================
     static func extractIngredients(raw query: String) -> String {
         """
-        The product name is: "\(query)"
+        PRODUCT NAME: "\(query)"
 
-        TASK:
-        - Infer a realistic list of 6–10 ingredients usually found in products of this type.
-        - DO NOT hallucinate strange chemicals.
-        - DO NOT repeat ingredients.
-        - DO NOT include quantities or fake formulas.
-        - ONLY include real-world common ingredients.
+        RULE:
+        - If this product is NOT edible, drinkable, cosmetic, or medicinal,
+          return an EMPTY ingredient list:
+            { "ingredients": [] }
+
+        Examples of NON-ingredient items:
+        chair, sofa, phone, laptop, pillow, table, bag, shoes, charger, pen.
+
+        Otherwise:
+        - Infer 6–10 realistic ingredients found in typical products of this type.
+        - ONLY real, common ingredients.
+        - NO invented chemicals, NO formulas, NO quantities.
 
         OUTPUT STRICT JSON ONLY:
         {
@@ -61,10 +83,9 @@ struct LLMPrompts {
             { "name": "<ingredient>" }
           ]
         }
-
-        NO explanation. NO text outside JSON. ONLY the ingredient list.
         """
     }
+
 
 
     // ============================================================
@@ -72,21 +93,18 @@ struct LLMPrompts {
     // ============================================================
     static func ingredientInfo(ingredients: [String]) -> String {
         """
-        Provide concise safety info for EACH ingredient below:
+        If the ingredient list is EMPTY:
+        Return:
+        { "ingredients": [] }
 
+        Otherwise, for each ingredient in:
         \(ingredients)
 
-        RULES:
-        - Return EXACTLY one entry per ingredient.
-        - DO NOT mutate or rewrite ingredient names.
-        - DO NOT add or remove ingredients.
-        - safetyLevel values:
-            0 = safe  
-            1 = caution  
-            2 = unsafe  
-        - info MUST be short.
+        Provide:
+        - safetyLevel: 0 = safe, 1 = caution, 2 = unsafe
+        - info: short text
 
-        RETURN STRICT JSON ONLY:
+        STRICT JSON ONLY:
         {
           "ingredients": [
             { "name": "<ingredient>", "safetyLevel": 0, "info": "<short>" }
@@ -94,6 +112,7 @@ struct LLMPrompts {
         }
         """
     }
+
 
 
     // ============================================================

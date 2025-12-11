@@ -51,9 +51,12 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
 
         parseIngredientInfo(ingredientInfoJSON)
         parseCategory(safetyJSON)
-        processSafetyAlerts(safetyJSON)
 
-        configureHeaderUI()
+        // Do NOT override UI for Unknown items
+        if productCategory != "Unknown" {
+            processSafetyAlerts(safetyJSON)
+            configureHeaderUI()
+        }
 
         productInfoView.onAlertsTapped = { [weak self] in
             self?.openSafetyAlertModal()
@@ -61,6 +64,12 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
 
         productInfoView.ingredientsTableView.reloadData()
     }
+
+
+    func hideIngredientSection() {
+        productInfoView.ingredientsTableView.isHidden = true
+    }
+
 
     // MARK: - TABLE CONFIG
     private func setupTable() {
@@ -78,19 +87,48 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
               let cat = dict["category"] as? String else { return }
 
         let lower = cat.lowercased()
-        print("🟩 LLM Returned Category:", lower)
+        print(" LLM Returned Category:", lower)
 
+        // VALID CLASSES
         if lower.contains("food") {
             productCategory = "Food Product"
-        } else if lower.contains("cosmetic") {
-            productCategory = "Cosmetic Item"
-        } else if lower.contains("medication") || lower.contains("drug") || lower.contains("medicine") {
-            productCategory = "Medication"
-        } else {
-            productCategory = "General"   // ⭐ fallback
+            return
         }
+
+        if lower.contains("cosmetic") {
+            productCategory = "Cosmetic Item"
+            return
+        }
+
+        if lower.contains("medication") || lower.contains("drug") || lower.contains("medicine") {
+            productCategory = "Medication"
+            return
+        }
+
+        //  UNKNOWN ITEM HERE
+        productCategory = "Unknown"
+
+        // Kill ingredients
+        ingredients = []
+        productInfoView.ingredientsTableView.isHidden = true
+
+        // Override safety score + UI
+        productInfoView.configure(
+            name: productName,
+            safetyScore: 0,
+            allergens: ["This item is not a consumable, cosmetic, or medical product."],
+            pillColor: .gray,
+            category: "Unknown"
+        )
+
+        // Prevent any further UI overwrite
+        combinedSafetyAlerts = ["This item is not a consumable, cosmetic, or medical product."]
+
+        //  Stop further code execution
+        return
     }
 
+    
     // MARK: - SAFETY ALERT PROCESS
     private func processSafetyAlerts(_ json: String) {
         let (allergens, warnings) = extractSafetyAlerts(from: json)
@@ -98,7 +136,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         var alerts: [String] = []
 
         for a in allergens {
-            alerts.append("⚠️ Allergen Match: \(a.capitalized)")
+            alerts.append(" Allergen Match: \(a.capitalized)")
         }
 
         for w in warnings {
@@ -140,7 +178,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
     private func toggleFavorite() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
-        // ⭐ Always guarantee a usable category
+        //  Always guarantee a usable category
         let safeCategory = productCategory.isEmpty ? "General" : productCategory
 
         if isFavorited {
@@ -165,12 +203,12 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
                 uid: uid,
                 productId: productName,
                 name: productName,
-                category: safeCategory,   // ⭐ stored correctly
+                category: safeCategory,   //  stored correctly
                 safetyScore: productSafetyScore,
                 ingredientInfoJSON: ingredientInfoJSON,
                 safetyJSON: safetyJSON
             ) { err in
-                if let err = err { print("🔥 Favorite save error:", err) }
+                if let err = err { print(" Favorite save error:", err) }
             }
 
             isFavorited = true
