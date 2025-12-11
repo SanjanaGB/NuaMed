@@ -18,6 +18,8 @@ build/
 # macOS
 .DS_Store
 
+# Ignore Secrets
+Secrets.xcconfig
 
 # Xcode project files
 *.pbxuser

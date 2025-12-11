@@ -1,111 +1,161 @@
+import Foundation
+
 struct LLMPrompts {
 
+    // ============================================================
+    // 1️⃣ CATEGORY CLASSIFICATION — FIXED & ROBUST
+    // ============================================================
     static func classifyCategory(name: String, description: String) -> String {
-        return """
-        You MUST classify the following product into EXACTLY one category:
-        - "Cosmetics Items"
-        - "Food Products"
-        - "Medications"
+        """
+        You MUST classify this product into EXACTLY ONE of the following categories:
 
-        Rules:
-        - If it is skincare, shampoo, soap, lotion → Cosmetics Items.
-        - If it is edible or drinkable → Food Products.
-        - If it treats a medical condition or contains active drug ingredients → Medications.
+        • "Food Product"
+        • "Cosmetic Item"
+        • "Medication"
 
-        Respond ONLY in JSON:
+        PRODUCT NAME: "\(name)"
+        PRODUCT DESCRIPTION: "\(description)"
+
+        HARD RULES:
+        - If it contains "soap", "body wash", "shampoo", "handwash", "detergent", "cleanser", 
+          "face wash", "lotion", "cream", "moisturizer", "shaving", "deodorant", 
+          "dettol", "savlon", "olay", "nivea", "ponds"
+          → ALWAYS "Cosmetic Item".
+
+        - If it contains "antiseptic", "disinfectant"
+          → ALWAYS "Cosmetic Item".
+
+        - If it treats a medical condition (tablet, capsule, syrup, antibiotic, ointment)
+          → ALWAYS "Medication".
+
+        - If it is edible or drinkable (any food, beverage, supplement, candy)
+          → ALWAYS "Food Product".
+
+        - NEVER classify non-edible items as food.
+
+        YOU MUST RETURN VALID JSON ONLY:
         {
-            "category": "<cosmetics | food | medication>"
+            "category": "<Food Product | Cosmetic Item | Medication>"
         }
-
-        Product: \(name)
-        Description: \(description)
         """
     }
 
 
-    static func extractIngredients(raw: String) -> String {
+    // ============================================================
+    // 2️⃣ INGREDIENT EXTRACTION (STRICT & CLEAN)
+    // ============================================================
+    static func extractIngredients(raw query: String) -> String {
         """
-        Extract ingredients from the raw text.
-        
-        ⚠️ IMPORTANT PARSING RULES:
-        - Never split an ingredient into multiple items.
-        - Keep numbers, ranges, parentheses, and units together.
-        - Example: “Caffeine (8.3 mg/100g)” MUST be returned as a SINGLE ingredient.
+        The product name is: "\(query)"
 
-        Return JSON:
-        {
-          "ingredients": ["...", "..."]
-        }
+        TASK:
+        - Infer a realistic list of 6–10 ingredients usually found in products of this type.
+        - DO NOT hallucinate strange chemicals.
+        - DO NOT repeat ingredients.
+        - DO NOT include quantities or fake formulas.
+        - ONLY include real-world common ingredients.
 
-        Raw:
-        \(raw)
-        """
-    }
-
-
-    static func ingredientInfo(ingredients: [String]) -> String {
-        """
-        For each ingredient return safetyLevel + info.
-
-        RULES:
-        - NEVER split an ingredient into multiple strings even if it contains commas, numbers, or parentheses.
-        - Treat the full text of each ingredient exactly as provided.
-        - Never output broken JSON.
-        - safetyLevel must be: 0 = safe, 1 = caution, 2 = unsafe.
-
-        Return ONLY this structure:
+        OUTPUT STRICT JSON ONLY:
         {
           "ingredients": [
-            { "name": "<full-ingredient-name>", "safetyLevel": 0, "info": "<short explanation>" }
+            { "name": "<ingredient>" }
           ]
         }
 
-        Ingredients: \(ingredients)
+        NO explanation. NO text outside JSON. ONLY the ingredient list.
         """
     }
 
 
+    // ============================================================
+    // 3️⃣ INGREDIENT INFO (SAFE / CAUTION / UNSAFE)
+    // ============================================================
+    static func ingredientInfo(ingredients: [String]) -> String {
+        """
+        Provide concise safety info for EACH ingredient below:
+
+        \(ingredients)
+
+        RULES:
+        - Return EXACTLY one entry per ingredient.
+        - DO NOT mutate or rewrite ingredient names.
+        - DO NOT add or remove ingredients.
+        - safetyLevel values:
+            0 = safe  
+            1 = caution  
+            2 = unsafe  
+        - info MUST be short.
+
+        RETURN STRICT JSON ONLY:
+        {
+          "ingredients": [
+            { "name": "<ingredient>", "safetyLevel": 0, "info": "<short>" }
+          ]
+        }
+        """
+    }
+
+
+    // ============================================================
+    // 4️⃣ SAFETY CHECK (ALLERGY + CONDITIONS + MEDICATION)
+    // ============================================================
     static func safetyCheck(
         ingredients: [String],
         allergies: [String],
         conditions: [String],
         meds: [String]
     ) -> String {
+
         """
-        You are an expert in food safety, cosmetic safety, and medication interactions.
+        You are a medical-grade safety engine.
 
-        You MUST return STRICT JSON ONLY in this exact format:
+        INGREDIENTS: \(ingredients)
+        USER ALLERGIES: \(allergies)
+        USER CONDITIONS: \(conditions)
+        USER MEDICATIONS: \(meds)
 
+        --------------------------------------------------------------------
+        RULES FOR ALERTS:
+        --------------------------------------------------------------------
+        1. ALLERGY MATCHING
+           - Case-insensitive.
+           - If ANY ingredient contains ANY allergen substring → FLAG IT.
+
+        2. CONDITION WARNINGS
+           Examples:
+           - diabetes → flag: sugar, high fructose corn syrup, glucose, sucrose
+           - hypertension → flag: sodium, salt, MSG
+           - kidney disease → flag: potassium, creatine
+           - GERD → flag: caffeine, mint
+           - pregnancy → flag: retinol, salicylic acid, benzoyl peroxide
+
+        3. MEDICATION INTERACTIONS
+           Examples:
+           - atorvastatin, simvastatin → NO grapefruit
+           - metformin → caution with alcohol
+           - antihistamines → avoid alcohol
+           - SSRIs → avoid St. John’s Wort
+           - blood thinners (warfarin) → avoid vitamin K rich additives
+           - MAOIs → avoid tyramine (soy sauce, cheese extracts)
+
+        IMPORTANT:
+        - ONLY produce a warning if the ingredient ACTUALLY APPEARS.
+        - DO NOT invent new ingredients.
+        - DO NOT hallucinate diseases.
+        - RETURN ONLY STRICT JSON.
+
+        --------------------------------------------------------------------
+        RETURN FORMAT:
+        --------------------------------------------------------------------
         {
-          "overallSafetyScore": <0-100>,
-          "allergenMatches": ["allergen1", "allergen2"],
+          "allergenMatches": ["..."],
           "warnings": [
-            { "ingredient": "ingredientName", "issue": "explanation" }
+            { "ingredient": "<ingredient>", "issue": "<why flagged>" }
           ],
-          "category": "food | cosmetic | medication"
+          "category": "<Food Product | Cosmetic Item | Medication>"
         }
-
-        RULES:
-        - NEVER include explanations outside JSON.
-        - ALWAYS classify the product strictly as **food**, **cosmetic**, or **medication**.
-        - Detect allergens by checking if ANY ingredient contains ANY user allergy substring (case-insensitive).
-        - List ALL matching allergens in "allergenMatches".
-        - If an allergen matches, also add a warning entry for that ingredient.
-        - Ingredient names MUST NOT be split or malformed.
-        - If an ingredient contains commas, keep it as a single string.
-        - NEVER output invalid JSON like `"ingredient": "A", "B"`.
-
-        Compute safety score as:
-        - Start from 100.
-        - Subtract 20 for each ingredient matching a user allergy.
-        - Subtract 10 for ingredients likely to cause irritation (e.g., alcohols, fragrances, parabens).
-        - Clamp between 0 and 100.
-
-        Ingredients: \(ingredients)
-        User Allergies: \(allergies)
-        Medical Conditions: \(conditions)
-        Medications: \(meds)
+        --------------------------------------------------------------------
+        JSON ONLY. NO TEXT OUTSIDE JSON.
         """
     }
-
 }

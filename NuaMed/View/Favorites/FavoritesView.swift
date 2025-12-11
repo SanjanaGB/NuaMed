@@ -12,7 +12,7 @@ class FavoritesView: UIView {
     
     //Dropdown menu selections
     let categoryDropdown = DropdownMenuView(
-        categories: ["All Categories", "Cosmetics Items", "Food Products", "Medications"],
+        categories: ["All Categories", "Cosmetic Item", "Food Product", "Medication"],
         initialTitle: "All Categories"
     )
     

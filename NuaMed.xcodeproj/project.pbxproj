@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		497E0F852C293AFAC4178BC2 /* Pods_NuaMed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09545E3A69CFC2557B5D929B /* Pods_NuaMed.framework */; };
-		908A5B7A584361E919E94A22 /* Pods_NuaMedTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3AC5C925EE0A06FAD0047FB /* Pods_NuaMedTests.framework */; };
-		EEDEA6B33C8D3B2856B953F8 /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA455EF9BB1FC3162604FA82 /* Pods_NuaMed_NuaMedUITests.framework */; };
+		1FD3E12594E5138F1499081C /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC5EE1EDC358A9C4DB106EE9 /* Pods_NuaMed_NuaMedUITests.framework */; };
+		5AB0837A82824CAC6EAC2531 /* Pods_NuaMed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED991F6E0A92ED6A052065B7 /* Pods_NuaMed.framework */; };
+		D492E94E2EEA459700C85925 /* MultiSlider in Frameworks */ = {isa = PBXBuildFile; productRef = D492E94D2EEA459700C85925 /* MultiSlider */; };
+		D4AA4F2C2EEA478B00F03B7E /* MultiSlider in Frameworks */ = {isa = PBXBuildFile; productRef = D4AA4F2B2EEA478B00F03B7E /* MultiSlider */; };
+		E6A4E489105D7048250BE752 /* Pods_NuaMedTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C99C2D404DD6125C7CEB2679 /* Pods_NuaMedTests.framework */; };
 		F4977DED2ED6516A00DD17FD /* MultiSlider in Frameworks */ = {isa = PBXBuildFile; productRef = F4977DEC2ED6516A00DD17FD /* MultiSlider */; };
 /* End PBXBuildFile section */
 
@@ -31,19 +33,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		09545E3A69CFC2557B5D929B /* Pods_NuaMed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		585DBA01D245DF980DBCFAFC /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed-NuaMedUITests.debug.xcconfig"; path = "Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		7A469FFCD76D6AF716C45191 /* Pods-NuaMedTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMedTests.release.xcconfig"; path = "Target Support Files/Pods-NuaMedTests/Pods-NuaMedTests.release.xcconfig"; sourceTree = "<group>"; };
+		250306BDE7CF3930D835821B /* Pods-NuaMedTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMedTests.release.xcconfig"; path = "Target Support Files/Pods-NuaMedTests/Pods-NuaMedTests.release.xcconfig"; sourceTree = "<group>"; };
+		355753F7ED829DB6DBC1CF4E /* Pods-NuaMed.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed.debug.xcconfig"; path = "Target Support Files/Pods-NuaMed/Pods-NuaMed.debug.xcconfig"; sourceTree = "<group>"; };
+		447499C4C80959C4E32DF9DE /* Pods-NuaMed-NuaMedUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed-NuaMedUITests.release.xcconfig"; path = "Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests.release.xcconfig"; sourceTree = "<group>"; };
+		65F587A8CF027CC2B69503B1 /* Pods-NuaMed.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed.release.xcconfig"; path = "Target Support Files/Pods-NuaMed/Pods-NuaMed.release.xcconfig"; sourceTree = "<group>"; };
 		893E3A442EB5332300FCBDAA /* NuaMed.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NuaMed.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		893E3A5A2EB5332900FCBDAA /* NuaMedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NuaMedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		893E3A642EB5332900FCBDAA /* NuaMedUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NuaMedUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		893E3B482EB68CA500FCBDAA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		9B135EF5748210D5758A9755 /* Pods-NuaMed.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed.release.xcconfig"; path = "Target Support Files/Pods-NuaMed/Pods-NuaMed.release.xcconfig"; sourceTree = "<group>"; };
-		BA455EF9BB1FC3162604FA82 /* Pods_NuaMed_NuaMedUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMed_NuaMedUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BCA815B3DCA36AFA6D67F34F /* Pods-NuaMed-NuaMedUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed-NuaMedUITests.release.xcconfig"; path = "Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests.release.xcconfig"; sourceTree = "<group>"; };
-		C3AC5C925EE0A06FAD0047FB /* Pods_NuaMedTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMedTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		DA69641981CE2AFEDECD3FFD /* Pods-NuaMed.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed.debug.xcconfig"; path = "Target Support Files/Pods-NuaMed/Pods-NuaMed.debug.xcconfig"; sourceTree = "<group>"; };
-		FD72C553DB23910B944D379B /* Pods-NuaMedTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMedTests.debug.xcconfig"; path = "Target Support Files/Pods-NuaMedTests/Pods-NuaMedTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C86986C4A22F80227065C648 /* Pods-NuaMedTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMedTests.debug.xcconfig"; path = "Target Support Files/Pods-NuaMedTests/Pods-NuaMedTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C99C2D404DD6125C7CEB2679 /* Pods_NuaMedTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMedTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC5EE1EDC358A9C4DB106EE9 /* Pods_NuaMed_NuaMedUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMed_NuaMedUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		ED991F6E0A92ED6A052065B7 /* Pods_NuaMed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NuaMed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF6C10697C784A8CCEFB73CF /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NuaMed-NuaMedUITests.debug.xcconfig"; path = "Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -51,16 +53,28 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Secrets.xcconfig,
 			);
 			target = 893E3A432EB5332300FCBDAA /* NuaMed */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		D45593C82EEA60E700ACFC4D /* Exceptions for "NuaMed" folder in "Compile Sources" phase from "NuaMed" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 893E3A402EB5332300FCBDAA /* Sources */;
+			membershipExceptions = (
+				Secrets.xcconfig,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		893E3A462EB5332300FCBDAA /* NuaMed */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				893E3A6C2EB5332900FCBDAA /* Exceptions for "NuaMed" folder in "NuaMed" target */,
+				D45593C82EEA60E700ACFC4D /* Exceptions for "NuaMed" folder in "Compile Sources" phase from "NuaMed" target */,
 			);
 			path = NuaMed;
 			sourceTree = "<group>";
@@ -82,8 +96,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				497E0F852C293AFAC4178BC2 /* Pods_NuaMed.framework in Frameworks */,
+				D4AA4F2C2EEA478B00F03B7E /* MultiSlider in Frameworks */,
+				D492E94E2EEA459700C85925 /* MultiSlider in Frameworks */,
 				F4977DED2ED6516A00DD17FD /* MultiSlider in Frameworks */,
+				5AB0837A82824CAC6EAC2531 /* Pods_NuaMed.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,7 +107,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				908A5B7A584361E919E94A22 /* Pods_NuaMedTests.framework in Frameworks */,
+				E6A4E489105D7048250BE752 /* Pods_NuaMedTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,23 +115,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEDEA6B33C8D3B2856B953F8 /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */,
+				1FD3E12594E5138F1499081C /* Pods_NuaMed_NuaMedUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		6FB5CE3A5EC7BCE6327F86EB /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				09545E3A69CFC2557B5D929B /* Pods_NuaMed.framework */,
-				BA455EF9BB1FC3162604FA82 /* Pods_NuaMed_NuaMedUITests.framework */,
-				C3AC5C925EE0A06FAD0047FB /* Pods_NuaMedTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		893E3A3B2EB5332300FCBDAA = {
 			isa = PBXGroup;
 			children = (
@@ -125,7 +131,7 @@
 				893E3A672EB5332900FCBDAA /* NuaMedUITests */,
 				893E3A452EB5332300FCBDAA /* Products */,
 				CD3F70FE53973DE9C38CF569 /* Pods */,
-				6FB5CE3A5EC7BCE6327F86EB /* Frameworks */,
+				8C94183AEFC8DEF5FDF0A248 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -139,15 +145,25 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8C94183AEFC8DEF5FDF0A248 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ED991F6E0A92ED6A052065B7 /* Pods_NuaMed.framework */,
+				DC5EE1EDC358A9C4DB106EE9 /* Pods_NuaMed_NuaMedUITests.framework */,
+				C99C2D404DD6125C7CEB2679 /* Pods_NuaMedTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		CD3F70FE53973DE9C38CF569 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				DA69641981CE2AFEDECD3FFD /* Pods-NuaMed.debug.xcconfig */,
-				9B135EF5748210D5758A9755 /* Pods-NuaMed.release.xcconfig */,
-				585DBA01D245DF980DBCFAFC /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */,
-				BCA815B3DCA36AFA6D67F34F /* Pods-NuaMed-NuaMedUITests.release.xcconfig */,
-				FD72C553DB23910B944D379B /* Pods-NuaMedTests.debug.xcconfig */,
-				7A469FFCD76D6AF716C45191 /* Pods-NuaMedTests.release.xcconfig */,
+				355753F7ED829DB6DBC1CF4E /* Pods-NuaMed.debug.xcconfig */,
+				65F587A8CF027CC2B69503B1 /* Pods-NuaMed.release.xcconfig */,
+				EF6C10697C784A8CCEFB73CF /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */,
+				447499C4C80959C4E32DF9DE /* Pods-NuaMed-NuaMedUITests.release.xcconfig */,
+				C86986C4A22F80227065C648 /* Pods-NuaMedTests.debug.xcconfig */,
+				250306BDE7CF3930D835821B /* Pods-NuaMedTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -159,11 +175,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 893E3A6D2EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMed" */;
 			buildPhases = (
-				A323D7DB798A6574C68D3F6B /* [CP] Check Pods Manifest.lock */,
+				09739506E937A15EA9C09433 /* [CP] Check Pods Manifest.lock */,
 				893E3A402EB5332300FCBDAA /* Sources */,
 				893E3A412EB5332300FCBDAA /* Frameworks */,
 				893E3A422EB5332300FCBDAA /* Resources */,
-				02A798378AFB63AA04B629AB /* [CP] Embed Pods Frameworks */,
+				74B2F9BC1833291DF5CA8CAB /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -181,7 +197,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 893E3A722EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMedTests" */;
 			buildPhases = (
-				4D67B0E6A855D151ECDB9FC5 /* [CP] Check Pods Manifest.lock */,
+				7730DCC5E5EB20D4AEF62FF5 /* [CP] Check Pods Manifest.lock */,
 				893E3A562EB5332900FCBDAA /* Sources */,
 				893E3A572EB5332900FCBDAA /* Frameworks */,
 				893E3A582EB5332900FCBDAA /* Resources */,
@@ -203,11 +219,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 893E3A752EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMedUITests" */;
 			buildPhases = (
-				81F1A7F5FAFD83BBDC42C8AA /* [CP] Check Pods Manifest.lock */,
+				C2EC5C6FD4A41CDFAF586E9C /* [CP] Check Pods Manifest.lock */,
 				893E3A602EB5332900FCBDAA /* Sources */,
 				893E3A612EB5332900FCBDAA /* Frameworks */,
 				893E3A622EB5332900FCBDAA /* Resources */,
-				4D3F4A4E8DCF11B94BB62599 /* [CP] Embed Pods Frameworks */,
+				916A969C360C3237E03B3DA9 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -256,7 +272,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F43278102ED646340015CE51 /* XCRemoteSwiftPackageReference "MultiSlider" */,
-				F43278112ED646B20015CE51 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 893E3A452EB5332300FCBDAA /* Products */;
@@ -295,7 +310,29 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		02A798378AFB63AA04B629AB /* [CP] Embed Pods Frameworks */ = {
+		09739506E937A15EA9C09433 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NuaMed-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		74B2F9BC1833291DF5CA8CAB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -316,28 +353,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NuaMed/Pods-NuaMed-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4D3F4A4E8DCF11B94BB62599 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4D67B0E6A855D151ECDB9FC5 /* [CP] Check Pods Manifest.lock */ = {
+		7730DCC5E5EB20D4AEF62FF5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -359,7 +375,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		81F1A7F5FAFD83BBDC42C8AA /* [CP] Check Pods Manifest.lock */ = {
+		916A969C360C3237E03B3DA9 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NuaMed-NuaMedUITests/Pods-NuaMed-NuaMedUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C2EC5C6FD4A41CDFAF586E9C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -375,28 +412,6 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-NuaMed-NuaMedUITests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A323D7DB798A6574C68D3F6B /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-NuaMed-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -445,7 +460,7 @@
 /* Begin XCBuildConfiguration section */
 		893E3A6E2EB5332900FCBDAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DA69641981CE2AFEDECD3FFD /* Pods-NuaMed.debug.xcconfig */;
+			baseConfigurationReference = 355753F7ED829DB6DBC1CF4E /* Pods-NuaMed.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -478,7 +493,7 @@
 		};
 		893E3A6F2EB5332900FCBDAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9B135EF5748210D5758A9755 /* Pods-NuaMed.release.xcconfig */;
+			baseConfigurationReference = 65F587A8CF027CC2B69503B1 /* Pods-NuaMed.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -511,6 +526,8 @@
 		};
 		893E3A702EB5332900FCBDAA /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 893E3A462EB5332300FCBDAA /* NuaMed */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -576,6 +593,8 @@
 		};
 		893E3A712EB5332900FCBDAA /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 893E3A462EB5332300FCBDAA /* NuaMed */;
+			baseConfigurationReferenceRelativePath = Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -634,7 +653,7 @@
 		};
 		893E3A732EB5332900FCBDAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FD72C553DB23910B944D379B /* Pods-NuaMedTests.debug.xcconfig */;
+			baseConfigurationReference = C86986C4A22F80227065C648 /* Pods-NuaMedTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -657,7 +676,7 @@
 		};
 		893E3A742EB5332900FCBDAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7A469FFCD76D6AF716C45191 /* Pods-NuaMedTests.release.xcconfig */;
+			baseConfigurationReference = 250306BDE7CF3930D835821B /* Pods-NuaMedTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -680,7 +699,7 @@
 		};
 		893E3A762EB5332900FCBDAA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 585DBA01D245DF980DBCFAFC /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */;
+			baseConfigurationReference = EF6C10697C784A8CCEFB73CF /* Pods-NuaMed-NuaMedUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -701,7 +720,7 @@
 		};
 		893E3A772EB5332900FCBDAA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BCA815B3DCA36AFA6D67F34F /* Pods-NuaMed-NuaMedUITests.release.xcconfig */;
+			baseConfigurationReference = 447499C4C80959C4E32DF9DE /* Pods-NuaMed-NuaMedUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -730,7 +749,7 @@
 				893E3A712EB5332900FCBDAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		893E3A6D2EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMed" */ = {
 			isa = XCConfigurationList;
@@ -739,7 +758,7 @@
 				893E3A6F2EB5332900FCBDAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		893E3A722EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMedTests" */ = {
 			isa = XCConfigurationList;
@@ -748,7 +767,7 @@
 				893E3A742EB5332900FCBDAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		893E3A752EB5332900FCBDAA /* Build configuration list for PBXNativeTarget "NuaMedUITests" */ = {
 			isa = XCConfigurationList;
@@ -757,7 +776,7 @@
 				893E3A772EB5332900FCBDAA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 
@@ -770,17 +789,17 @@
 				minimumVersion = 2.2.1;
 			};
 		};
-		F43278112ED646B20015CE51 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.6.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		D492E94D2EEA459700C85925 /* MultiSlider */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MultiSlider;
+		};
+		D4AA4F2B2EEA478B00F03B7E /* MultiSlider */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MultiSlider;
+		};
 		F4977DEC2ED6516A00DD17FD /* MultiSlider */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F43278102ED646340015CE51 /* XCRemoteSwiftPackageReference "MultiSlider" */;

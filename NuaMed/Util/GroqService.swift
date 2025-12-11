@@ -3,7 +3,9 @@ import Foundation
 final class GroqService {
     static let shared = GroqService()
 
-    private let apiKey = "REMOVEDcsdO35zvYXxnvWDEtnJ5WGdyb3FYbWPGojIWrUGsLboS5Sq5eS6P"
+    //private let apiKey = "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"
+    private let apiKey = Bundle.main.object(forInfoDictionaryKey: "GROQ_API_KEY") as? String ?? ""
+
     private let endpoint = URL(string: "https://api.groq.com/openai/v1/chat/completions")!
 
     private init() {}

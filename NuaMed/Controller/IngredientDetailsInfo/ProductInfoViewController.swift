@@ -11,10 +11,9 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
 
     private var isFavorited = false
 
-    // LLM DATA
     private var ingredients: [Ingredient] = []
-    private var allergens: [String] = []
-    private var warnings: [String] = []
+    private var combinedSafetyAlerts: [String] = []
+    private var productCategory: String = "General"   // ⭐ default category
 
     private let ingredientInfoJSON: String
     private let safetyJSON: String
@@ -37,207 +36,170 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         hidesBottomBarWhenPushed = true
     }
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    // MARK: - LOAD VIEW
-    override func loadView() {
-        view = productInfoView
-    }
+    override func loadView() { view = productInfoView }
 
+    // MARK: - VIEW DID LOAD
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .systemBlue
 
-        parseIngredientInfo(ingredientInfoJSON)
-        parseSafetyJSON(safetyJSON)
-        checkUserAllergies()  
         setupTable()
-        configureHeaderUI()
         loadFavoriteState()
 
-        // Reload AFTER parsing
+        parseIngredientInfo(ingredientInfoJSON)
+        parseCategory(safetyJSON)
+        processSafetyAlerts(safetyJSON)
+
+        configureHeaderUI()
+
+        productInfoView.onAlertsTapped = { [weak self] in
+            self?.openSafetyAlertModal()
+        }
+
         productInfoView.ingredientsTableView.reloadData()
     }
 
-    // MARK: - UI CONFIG
+    // MARK: - TABLE CONFIG
     private func setupTable() {
         let table = productInfoView.ingredientsTableView
-
-        table.register(IngredientTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
-        table.dataSource = self
         table.delegate = self
-        table.separatorStyle = .none
-        table.rowHeight = 48
+        table.dataSource = self
         table.backgroundColor = .clear
+        table.register(IngredientTableViewCell.self, forCellReuseIdentifier: "IngredientCell")
+        table.separatorStyle = .none
     }
-    
-    private func checkUserAllergies() {
-        guard let user = UserProfileManager.shared.currentUser else { return }
 
-        let userAllergies = user.allergies.map { $0.lowercased() }
+    // MARK: - CATEGORY PARSE
+    private func parseCategory(_ json: String) {
+        guard let dict = json.toJSONDict(),
+              let cat = dict["category"] as? String else { return }
 
-        // Scan every ingredient
-        for ing in ingredients {
-            let name = ing.name.lowercased()
+        let lower = cat.lowercased()
+        print("🟩 LLM Returned Category:", lower)
 
-            for allergy in userAllergies {
-                if name.contains(allergy) {
-                    allergens.append("⚠︎ Contains your allergen: \(allergy.capitalized)")
-                }
-            }
+        if lower.contains("food") {
+            productCategory = "Food Product"
+        } else if lower.contains("cosmetic") {
+            productCategory = "Cosmetic Item"
+        } else if lower.contains("medication") || lower.contains("drug") || lower.contains("medicine") {
+            productCategory = "Medication"
+        } else {
+            productCategory = "General"   // ⭐ fallback
         }
     }
 
+    // MARK: - SAFETY ALERT PROCESS
+    private func processSafetyAlerts(_ json: String) {
+        let (allergens, warnings) = extractSafetyAlerts(from: json)
 
+        var alerts: [String] = []
+
+        for a in allergens {
+            alerts.append("⚠️ Allergen Match: \(a.capitalized)")
+        }
+
+        for w in warnings {
+            alerts.append("⚡ \(w.ingredient): \(w.issue)")
+        }
+
+        combinedSafetyAlerts = alerts.isEmpty
+            ? ["No safety concerns detected for your profile."]
+            : alerts
+    }
+
+    private func openSafetyAlertModal() {
+        let vc = SafetyAlertsModalViewController(alerts: combinedSafetyAlerts)
+        vc.modalPresentationStyle = .pageSheet
+        present(vc, animated: true)
+    }
+
+    // MARK: - HEADER
     private func configureHeaderUI() {
-
-        let allergensText = allergens.isEmpty
-            ? "No known allergens detected."
-            : allergens.joined(separator: "\n")
-
         productInfoView.configure(
             name: productName,
             safetyScore: productSafetyScore,
-            allergens: allergensText.components(separatedBy: "\n"),
-            pillColor: pillColor
+            allergens: combinedSafetyAlerts,
+            pillColor: pillColor,
+            category: productCategory
         )
     }
 
-    // MARK: - FAVORITES
+    // MARK: - FAVORITE HANDLING
     private func loadFavoriteState() {
         isFavorited = Favorites.shared.checkIfFavorited(named: productName)
-        updateFavoriteStarIcon()
+        productInfoView.updateFavoriteStarIcon(systemName: isFavorited ? "star.fill" : "star")
 
         productInfoView.onFavoriteTapped = { [weak self] in
             self?.toggleFavorite()
         }
     }
 
-    @objc private func toggleFavorite() {
+    private func toggleFavorite() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
+        // ⭐ Always guarantee a usable category
+        let safeCategory = productCategory.isEmpty ? "General" : productCategory
+
         if isFavorited {
-            // REMOVE FAVORITE
+            // REMOVE
             Favorites.shared.removeProduct(named: productName)
             FirebaseService.shared.removeFavoriteItem(uid: uid, productId: productName) { _ in }
             isFavorited = false
 
         } else {
-            let newFav = FavoriteProduct(
+            // ADD
+            let fav = FavoriteProduct(
                 name: productName,
                 safetyScore: productSafetyScore,
+                category: safeCategory,
                 ingredientInfoJSON: ingredientInfoJSON,
                 safetyJSON: safetyJSON
             )
 
-            Favorites.shared.addProduct(newFav)
+            Favorites.shared.addProduct(fav)
 
             FirebaseService.shared.addFavoriteItem(
                 uid: uid,
                 productId: productName,
                 name: productName,
-                category: "General",
+                category: safeCategory,   // ⭐ stored correctly
                 safetyScore: productSafetyScore,
                 ingredientInfoJSON: ingredientInfoJSON,
                 safetyJSON: safetyJSON
-            ) { error in
-                if let e = error { print("Favorite save error:", e) }
+            ) { err in
+                if let err = err { print("🔥 Favorite save error:", err) }
             }
 
             isFavorited = true
         }
 
-
-        updateFavoriteStarIcon()
-    }
-
-
-    private func updateFavoriteStarIcon() {
         productInfoView.updateFavoriteStarIcon(systemName: isFavorited ? "star.fill" : "star")
     }
 
-    // MARK: - JSON PARSING (GROQ)
+    // MARK: - INGREDIENT PARSE
     private func parseIngredientInfo(_ json: String) {
-        guard
-            let dict = json.toJSONDict(),
-            let list = dict["ingredients"] as? [[String: Any]]
+        guard let dict = json.toJSONDict(),
+              let list = dict["ingredients"] as? [[String: Any]]
         else { return }
 
-        var cleaned: [[String: Any]] = []
-        var buffer: [String: Any]? = nil
-
-        for item in list {
-            let name = item["name"] as? String ?? ""
-
-            // Case 1: broken start: "CAFFEINE(8"
-            if name.contains("("), !name.contains(")") {
-                buffer = item
-                continue
-            }
-
-            // Case 2: second half: "3 mg/100 g)"
-            if let b = buffer, name.contains(")") {
-                let mergedName = (b["name"] as? String ?? "") + " " + name
-                cleaned.append([
-                    "name": mergedName,
-                    "info": b["info"] as? String ?? "",
-                    "safetyLevel": b["safetyLevel"] as? Int ?? 0
-                ])
-                buffer = nil
-                continue
-            }
-
-            // Normal entry
-            cleaned.append(item)
-        }
-
-        if let leftover = buffer {
-            cleaned.append(leftover)
-        }
-
-        self.ingredients = cleaned.compactMap { item in
-            let name = item["name"] as? String ?? ""
-            let info = item["info"] as? String ?? ""
-            let level = item["safetyLevel"] as? Int ?? 0
-
-            return Ingredient(
-                name: name,
-                safety: IngredientSafety(rawValue: level) ?? .safe,
-                infoText: info
+        ingredients = list.compactMap { item in
+            Ingredient(
+                name: item["name"] as? String ?? "",
+                safety: IngredientSafety(rawValue: item["safetyLevel"] as? Int ?? 0) ?? .safe,
+                infoText: item["info"] as? String ?? ""
             )
         }
     }
 
-    private func parseSafetyJSON(_ json: String) {
-        guard let dict = json.toJSONDict() else { return }
-
-        self.allergens = dict["allergenMatches"] as? [String] ?? []
-
-        // Convert warnings into readable strings
-        if let warnList = dict["warnings"] as? [[String: Any]] {
-            self.warnings = warnList.compactMap { item in
-                guard
-                    let ing = item["ingredient"] as? String,
-                    let issue = item["issue"] as? String
-                else { return nil }
-
-                return "\(ing): \(issue)"
-            }
-        }
-    }
-
-    // MARK: - TABLEVIEW
+    // MARK: - TABLEVIEW DATA
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return ingredients.count
+        ingredients.count
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "IngredientCell",
@@ -250,9 +212,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
         cell.configure(with: ing)
 
         cell.onInfoTapped = { [weak self] in
-            guard let self = self else { return }
-            let vc = IngredientDetailViewController(ingredient: ing)
-            self.present(vc, animated: true)
+            self?.present(IngredientDetailViewController(ingredient: ing), animated: true)
         }
 
         return cell
@@ -260,8 +220,7 @@ class ProductInfoViewController: UIViewController, UITableViewDelegate, UITableV
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ing = ingredients[indexPath.row]
-        let vc = IngredientDetailViewController(ingredient: ing)
-        present(vc, animated: true)
+        present(IngredientDetailViewController(ingredient: ing), animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }

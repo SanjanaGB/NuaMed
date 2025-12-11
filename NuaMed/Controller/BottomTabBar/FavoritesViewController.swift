@@ -6,10 +6,10 @@ class FavoritesViewController: UIViewController {
     let favoritesView = FavoritesView()
     private var listController: ProductListViewController!
 
-    // Firestore → UI model
     private var allFavoritedProducts: [FavoriteProduct] = []
     private var displayedFavoritedProducts: [FavoriteProduct] = []
 
+    private var selectedCategory: String = "All"
     private var currentMinSafety = 0
     private var currentMaxSafety = 100
 
@@ -20,10 +20,10 @@ class FavoritesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = UIColor.systemBlue
         title = "Favorites"
+        view.backgroundColor = .systemBlue
 
-        // Table controller
+        // TABLE CONTROLLER
         listController = ProductListViewController(tableView: favoritesView.productsTableView)
         listController.onSelectRow = { [weak self] row in
             guard let self = self else { return }
@@ -32,23 +32,32 @@ class FavoritesViewController: UIViewController {
                 name: row.name,
                 safetyScore: row.safetyScore,
                 pillColor: self.colorFor(score: row.safetyScore),
-                ingredientInfoJSON: row.ingredientInfoJSON,   // will update later
+                ingredientInfoJSON: row.ingredientInfoJSON,
                 safetyJSON: row.safetyJSON
             )
-
             self.navigationController?.pushViewController(detailVC, animated: true)
         }
 
-        // Category dropdown
+        // CATEGORY PICKER
         favoritesView.categoryDropdown.onCategorySelected = { [weak self] category in
-            self?.filterFavorites(by: category)
+            guard let self = self else { return }
+
+            // Normalize category right away
+            if category == "All Categories" {
+                self.selectedCategory = "All"
+            } else {
+                self.selectedCategory = category
+            }
+            
+            self.applyFavoritesFilters()
         }
 
-        // Safety slider
+
+        // SAFETY SLIDER
         favoritesView.onSafetyRangeChanged = { [weak self] minVal, maxVal in
             guard let self = self else { return }
-            self.currentMinSafety = Int(minVal.rounded())
-            self.currentMaxSafety = Int(maxVal.rounded())
+            self.currentMinSafety = Int(minVal)
+            self.currentMaxSafety = Int(maxVal)
             self.applyFavoritesFilters()
         }
     }
@@ -58,7 +67,7 @@ class FavoritesViewController: UIViewController {
         loadFavoritesFromFirestore()
     }
 
-    // MARK: - Load from Firestore
+    // MARK: - FIRESTORE LOAD
     private func loadFavoritesFromFirestore() {
         guard let uid = Auth.auth().currentUser?.uid else {
             allFavoritedProducts = []
@@ -72,55 +81,65 @@ class FavoritesViewController: UIViewController {
                 guard let self = self else { return }
 
                 switch result {
-                case .failure(let error):
-                    print("❌ Failed to fetch favorites:", error)
+                case .failure(let err):
+                    print("❌ Favorites fetch error:", err)
                     self.allFavoritedProducts = []
-                    self.displayedFavoritedProducts = []
-                    self.favoritesView.productsTableView.reloadData()
 
                 case .success(let items):
                     self.allFavoritedProducts = items.map {
                         FavoriteProduct(
                             name: $0.name,
                             safetyScore: $0.safetyScore,
+                            category: $0.category.isEmpty ? "General" : $0.category,
                             ingredientInfoJSON: $0.ingredientInfoJSON,
-                                    safetyJSON: $0.safetyJSON
+                            safetyJSON: $0.safetyJSON
                         )
                     }
-
-                    self.applyFavoritesFilters()
                 }
+
+                self.applyFavoritesFilters()
             }
         }
     }
 
-    // MARK: - Filtering
+    // MARK: - FILTER SYSTEM
+    // MARK: - FILTER SYSTEM
     private func applyFavoritesFilters() {
-        displayedFavoritedProducts = allFavoritedProducts.filter { product in
-            let s = product.safetyScore
-            return s >= currentMinSafety && s <= currentMaxSafety
+
+        // Normalize category
+        let normalizedCategory =
+            (selectedCategory == "All Categories" || selectedCategory == "All")
+            ? "All"
+            : selectedCategory
+
+        // 1️⃣ Safety filter
+        var filtered = allFavoritedProducts.filter {
+            ($0.safetyScore >= currentMinSafety) && ($0.safetyScore <= currentMaxSafety)
         }
 
-        listController.rows = displayedFavoritedProducts.map { product in
+        // 2️⃣ Category filter
+        if normalizedCategory != "All" {
+            filtered = filtered.filter {
+                $0.category.lowercased() == normalizedCategory.lowercased()
+            }
+        }
+
+        displayedFavoritedProducts = filtered
+
+        // UPDATE TABLE
+        listController.rows = displayedFavoritedProducts.map {
             ProductRow(
-                id: product.name,
-                name: product.name,
-                safetyScore: product.safetyScore,
+                id: $0.name,
+                name: $0.name,
+                safetyScore: $0.safetyScore,
                 image: nil,
-                ingredientInfoJSON: product.ingredientInfoJSON,
-                safetyJSON: product.safetyJSON
+                ingredientInfoJSON: $0.ingredientInfoJSON,
+                safetyJSON: $0.safetyJSON
             )
         }
     }
 
-    // MARK: - Category filtering placeholder
-    private func filterFavorites(by category: String) {
-        print("Selected category:", category)
-        // Later you will integrate category matching.
-        applyFavoritesFilters()
-    }
-
-    // MARK: - Helpers
+    // MARK: - COLOR CODE
     private func colorFor(score: Int) -> UIColor {
         if score < 30 { return .systemRed }
         if score < 60 { return .systemYellow }

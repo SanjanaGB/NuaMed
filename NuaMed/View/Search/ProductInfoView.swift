@@ -2,267 +2,195 @@ import UIKit
 
 class ProductInfoView: UIView {
 
-    // MARK: - Top UI
-    var productImageView: UIImageView!
-    var productNameLabel: UILabel!
-    var safetyRatingLabel: UILabel!
-    var safetyPillView: UIView!
-    var safetyLabel: UILabel!
-    var safetyIndexLabel: UILabel!
-    var favoriteStarImageView: UIImageView!
+    // ---------------------------------------------------------------------
+    // MARK: - UI COMPONENTS
+    // ---------------------------------------------------------------------
+
+    // ❌ REMOVED BACK BUTTON
+
+    let favoriteButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "star"), for: .normal)
+        btn.tintColor = .yellow
+        btn.backgroundColor = .clear
+        return btn
+    }()
+
+    let productNameLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white
+        label.font = .boldSystemFont(ofSize: 32)
+        return label
+    }()
+
+    let categoryLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white.withAlphaComponent(0.8)
+        label.font = .systemFont(ofSize: 18, weight: .medium)
+        return label
+    }()
+
+    let safetyCircle: UIView = {
+        let view = UIView()
+        view.backgroundColor = .green
+        view.layer.cornerRadius = 40
+        return view
+    }()
+
+    let safetyScoreLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .white
+        label.font = .boldSystemFont(ofSize: 28)
+        label.textAlignment = .center
+        return label
+    }()
+
+    let alertsButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.backgroundColor = UIColor.systemYellow
+        btn.setTitleColor(.black, for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        btn.setTitle("View Safety Alerts", for: .normal)
+        btn.layer.cornerRadius = 14
+        return btn
+    }()
+
+    let ingredientsContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 22
+        view.clipsToBounds = true
+        return view
+    }()
+
+    let ingredientsTableView: UITableView = {
+        let table = UITableView()
+        table.backgroundColor = .clear
+        table.separatorInset = .zero
+        table.rowHeight = 52
+        table.separatorStyle = .singleLine
+        return table
+    }()
+
+    // ---------------------------------------------------------------------
+    // MARK: CALLBACK HANDLERS
+    // ---------------------------------------------------------------------
+
     var onFavoriteTapped: (() -> Void)?
+    var onAlertsTapped: (() -> Void)?
 
-    // MARK: - Allergens Card
-    var rectangleContainer: UIView!
-    var allergensIconView: UIImageView!
-    var allergensTitleLabel: UILabel!
-    var allergensBodyLabel: UILabel!
-
-    // MARK: - Ingredients Card
-    let ingredientsCardView = UIView()
-    let ingredientsLabel = UILabel()
-    let ingredientsTableView = UITableView()
+    // ---------------------------------------------------------------------
+    // MARK: - INIT
+    // ---------------------------------------------------------------------
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        backgroundColor = .systemBlue
-
-        setupProductImageView()
-        setupFavoriteStarIcon()
-        setupProductNameLabel()
-        setupSafetyRatingLabel()
-        setupSafetyPill()
-
-        setupAllergensCard()
-
-        setupIngredientsCard()
-        setupIngredientsLabel()
-        setupIngredientsTable()
-
-        initConstraints()
+        backgroundColor = UIColor.systemBlue
+        setupUI()
     }
 
-    required init?(coder: NSCoder) { fatalError("init(coder:) not implemented") }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-    // MARK: - CONFIGURE DATA
-    func configure(name: String, safetyScore: Int, allergens: [String], pillColor: UIColor?) {
+    // ---------------------------------------------------------------------
+    // MARK: - CONFIGURE
+    // ---------------------------------------------------------------------
+
+    func configure(name: String,
+                   safetyScore: Int,
+                   allergens: [String],
+                   pillColor: UIColor,
+                   category: String) {
+
         productNameLabel.text = name
-        safetyIndexLabel.text = "\(safetyScore)"
-        allergensBodyLabel.text = allergens.joined(separator: "\n")
+        categoryLabel.text = "Category: \(category)"
+        safetyScoreLabel.text = "\(safetyScore)"
+        safetyCircle.backgroundColor = pillColor
 
-        let style = ProductInfoView.safetyStyle(for: safetyScore)
-
-        safetyPillView.backgroundColor = pillColor ?? style.background
-        safetyLabel.textColor = style.text
-        safetyIndexLabel.textColor = style.text
+        alertsButton.setTitle("View Safety Alerts (\(allergens.count))", for: .normal)
     }
 
-    // MARK: - SETUP TOP UI
-    func setupProductImageView() {
-        productImageView = UIImageView()
-        productImageView.contentMode = .scaleAspectFit
-        productImageView.layer.cornerRadius = 40
-        productImageView.clipsToBounds = true
-        productImageView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(productImageView)
+    func updateFavoriteStarIcon(systemName: String) {
+        favoriteButton.setImage(UIImage(systemName: systemName), for: .normal)
     }
 
-    func setupFavoriteStarIcon() {
-        favoriteStarImageView = UIImageView(image: UIImage(systemName: "star"))
-        favoriteStarImageView.tintColor = .systemYellow
-        favoriteStarImageView.translatesAutoresizingMaskIntoConstraints = false
-        favoriteStarImageView.isUserInteractionEnabled = true
+    // ---------------------------------------------------------------------
+    // MARK: - LAYOUT
+    // ---------------------------------------------------------------------
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(favoriteStarTapped))
-        favoriteStarImageView.addGestureRecognizer(tap)
-        addSubview(favoriteStarImageView)
-    }
+    private func setupUI() {
 
-    func setupProductNameLabel() {
-        productNameLabel = UILabel()
-        productNameLabel.text = "Product Name"
-        productNameLabel.font = .boldSystemFont(ofSize: 28)
-        productNameLabel.textColor = .white
-        productNameLabel.textAlignment = .center
-        productNameLabel.numberOfLines = 0
-        productNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(favoriteButton)
         addSubview(productNameLabel)
-    }
+        addSubview(categoryLabel)
+        addSubview(safetyCircle)
+        safetyCircle.addSubview(safetyScoreLabel)
+        addSubview(alertsButton)
+        addSubview(ingredientsContainer)
+        ingredientsContainer.addSubview(ingredientsTableView)
 
-    func setupSafetyRatingLabel() {
-        safetyRatingLabel = UILabel()
-        safetyRatingLabel.text = "Safety Rating:"
-        safetyRatingLabel.font = .boldSystemFont(ofSize: 20)
-        safetyRatingLabel.textColor = .white
-        safetyRatingLabel.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(safetyRatingLabel)
-    }
-
-    func setupSafetyPill() {
-        safetyPillView = UIView()
-        safetyPillView.backgroundColor = .systemGreen
-        safetyPillView.layer.cornerRadius = 16
-        safetyPillView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(safetyPillView)
-
-        safetyLabel = UILabel()
-        safetyLabel.text = "Safety"
-        safetyLabel.font = .boldSystemFont(ofSize: 17)
-        safetyLabel.textColor = .white
-        safetyLabel.translatesAutoresizingMaskIntoConstraints = false
-        safetyPillView.addSubview(safetyLabel)
-
-        safetyIndexLabel = UILabel()
-        safetyIndexLabel.text = "80"
-        safetyIndexLabel.font = .boldSystemFont(ofSize: 18)
-        safetyIndexLabel.textColor = .white
-        safetyIndexLabel.translatesAutoresizingMaskIntoConstraints = false
-        safetyPillView.addSubview(safetyIndexLabel)
-    }
-
-    // MARK: - ALLERGEN CARD
-    func setupAllergensCard() {
-        rectangleContainer = UIView()
-        rectangleContainer.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.92)
-        rectangleContainer.layer.cornerRadius = 22
-        rectangleContainer.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(rectangleContainer)
-
-        allergensIconView = UIImageView(image: UIImage(systemName: "exclamationmark.triangle"))
-        allergensIconView.tintColor = .black
-        allergensIconView.translatesAutoresizingMaskIntoConstraints = false
-        rectangleContainer.addSubview(allergensIconView)
-
-        allergensTitleLabel = UILabel()
-        allergensTitleLabel.text = "Allergens"
-        allergensTitleLabel.font = .boldSystemFont(ofSize: 20)
-        allergensTitleLabel.textColor = .black
-        allergensTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        rectangleContainer.addSubview(allergensTitleLabel)
-
-        allergensBodyLabel = UILabel()
-        allergensBodyLabel.font = .systemFont(ofSize: 16)
-        allergensBodyLabel.textColor = .black
-        allergensBodyLabel.numberOfLines = 0
-        allergensBodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        rectangleContainer.addSubview(allergensBodyLabel)
-    }
-
-    // MARK: - INGREDIENTS CARD
-    func setupIngredientsCard() {
-        ingredientsCardView.backgroundColor = .white
-        ingredientsCardView.layer.cornerRadius = 24
-        ingredientsCardView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(ingredientsCardView)
-    }
-
-    func setupIngredientsLabel() {
-        ingredientsLabel.text = "Natural & Artificial Ingredients"
-        ingredientsLabel.font = .boldSystemFont(ofSize: 20)
-        ingredientsLabel.textAlignment = .center
-        ingredientsLabel.numberOfLines = 0
-        ingredientsLabel.translatesAutoresizingMaskIntoConstraints = false
-        ingredientsCardView.addSubview(ingredientsLabel)
-    }
-
-    func setupIngredientsTable() {
-        ingredientsTableView.backgroundColor = .clear
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        productNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        categoryLabel.translatesAutoresizingMaskIntoConstraints = false
+        safetyCircle.translatesAutoresizingMaskIntoConstraints = false
+        safetyScoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        alertsButton.translatesAutoresizingMaskIntoConstraints = false
+        ingredientsContainer.translatesAutoresizingMaskIntoConstraints = false
         ingredientsTableView.translatesAutoresizingMaskIntoConstraints = false
-        ingredientsCardView.addSubview(ingredientsTableView)
-    }
 
-    // MARK: - CONSTRAINTS
-    func initConstraints() {
         NSLayoutConstraint.activate([
 
-            // Top image
-            productImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 28),
-            productImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            productImageView.widthAnchor.constraint(equalToConstant: 80),
-            productImageView.heightAnchor.constraint(equalToConstant: 80),
+            // ⭐ ONLY FAVORITE BUTTON AT TOP
+            favoriteButton.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 12),
+            favoriteButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 40),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 40),
 
-            // Star
-            favoriteStarImageView.centerYAnchor.constraint(equalTo: productImageView.centerYAnchor),
-            favoriteStarImageView.leadingAnchor.constraint(equalTo: productImageView.trailingAnchor, constant: 16),
-
-            // Name
-            productNameLabel.topAnchor.constraint(equalTo: productImageView.bottomAnchor, constant: 8),
+            // PRODUCT NAME
+            productNameLabel.topAnchor.constraint(equalTo: favoriteButton.bottomAnchor, constant: 20),
             productNameLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            productNameLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
 
-            // Safety row
-            safetyRatingLabel.topAnchor.constraint(equalTo: productNameLabel.bottomAnchor, constant: 18),
-            safetyRatingLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
+            // CATEGORY
+            categoryLabel.topAnchor.constraint(equalTo: productNameLabel.bottomAnchor, constant: 4),
+            categoryLabel.leadingAnchor.constraint(equalTo: productNameLabel.leadingAnchor),
 
-            safetyPillView.centerYAnchor.constraint(equalTo: safetyRatingLabel.centerYAnchor),
-            safetyPillView.leadingAnchor.constraint(equalTo: safetyRatingLabel.trailingAnchor, constant: 10),
-            safetyPillView.heightAnchor.constraint(equalToConstant: 30),
+            // SAFETY CIRCLE
+            safetyCircle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            safetyCircle.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 20),
+            safetyCircle.widthAnchor.constraint(equalToConstant: 80),
+            safetyCircle.heightAnchor.constraint(equalToConstant: 80),
 
-            safetyLabel.leadingAnchor.constraint(equalTo: safetyPillView.leadingAnchor, constant: 10),
-            safetyLabel.centerYAnchor.constraint(equalTo: safetyPillView.centerYAnchor),
+            safetyScoreLabel.centerXAnchor.constraint(equalTo: safetyCircle.centerXAnchor),
+            safetyScoreLabel.centerYAnchor.constraint(equalTo: safetyCircle.centerYAnchor),
 
-            safetyIndexLabel.leadingAnchor.constraint(equalTo: safetyLabel.trailingAnchor, constant: 6),
-            safetyIndexLabel.trailingAnchor.constraint(equalTo: safetyPillView.trailingAnchor, constant: -10),
-            safetyIndexLabel.centerYAnchor.constraint(equalTo: safetyPillView.centerYAnchor),
+            // ALERTS BUTTON
+            alertsButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            alertsButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            alertsButton.topAnchor.constraint(equalTo: safetyCircle.bottomAnchor, constant: 20),
+            alertsButton.heightAnchor.constraint(equalToConstant: 48),
 
-            // Allergen Card
-            rectangleContainer.topAnchor.constraint(equalTo: safetyRatingLabel.bottomAnchor, constant: 24),
-            rectangleContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            rectangleContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            // INGREDIENT CONTAINER
+            ingredientsContainer.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+            ingredientsContainer.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+            ingredientsContainer.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            ingredientsContainer.topAnchor.constraint(equalTo: alertsButton.bottomAnchor, constant: 16),
 
-            allergensIconView.topAnchor.constraint(equalTo: rectangleContainer.topAnchor, constant: 14),
-            allergensIconView.leadingAnchor.constraint(equalTo: rectangleContainer.leadingAnchor, constant: 14),
-
-            allergensTitleLabel.centerYAnchor.constraint(equalTo: allergensIconView.centerYAnchor),
-            allergensTitleLabel.leadingAnchor.constraint(equalTo: allergensIconView.trailingAnchor, constant: 8),
-
-            allergensBodyLabel.topAnchor.constraint(equalTo: allergensIconView.bottomAnchor, constant: 10),
-            allergensBodyLabel.leadingAnchor.constraint(equalTo: rectangleContainer.leadingAnchor, constant: 14),
-            allergensBodyLabel.trailingAnchor.constraint(equalTo: rectangleContainer.trailingAnchor, constant: -14),
-            allergensBodyLabel.bottomAnchor.constraint(equalTo: rectangleContainer.bottomAnchor, constant: -14),
-
-            // Ingredients card
-            ingredientsCardView.topAnchor.constraint(equalTo: rectangleContainer.bottomAnchor, constant: 20),
-            ingredientsCardView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            ingredientsCardView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            ingredientsCardView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
-
-            ingredientsLabel.topAnchor.constraint(equalTo: ingredientsCardView.topAnchor, constant: 16),
-            ingredientsLabel.leadingAnchor.constraint(equalTo: ingredientsCardView.leadingAnchor, constant: 16),
-            ingredientsLabel.trailingAnchor.constraint(equalTo: ingredientsCardView.trailingAnchor, constant: -16),
-
-            ingredientsTableView.topAnchor.constraint(equalTo: ingredientsLabel.bottomAnchor, constant: 8),
-            ingredientsTableView.leadingAnchor.constraint(equalTo: ingredientsCardView.leadingAnchor),
-            ingredientsTableView.trailingAnchor.constraint(equalTo: ingredientsCardView.trailingAnchor),
-            ingredientsTableView.bottomAnchor.constraint(equalTo: ingredientsCardView.bottomAnchor)
+            // TABLE INSIDE CONTAINER
+            ingredientsTableView.topAnchor.constraint(equalTo: ingredientsContainer.topAnchor),
+            ingredientsTableView.bottomAnchor.constraint(equalTo: ingredientsContainer.bottomAnchor),
+            ingredientsTableView.leadingAnchor.constraint(equalTo: ingredientsContainer.leadingAnchor),
+            ingredientsTableView.trailingAnchor.constraint(equalTo: ingredientsContainer.trailingAnchor)
         ])
+
+        favoriteButton.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
+        alertsButton.addTarget(self, action: #selector(alertsTapped), for: .touchUpInside)
     }
 
-    // MARK: - Favorite Tap
-    @objc func favoriteStarTapped() {
-        onFavoriteTapped?()
-    }
-    
-    func updateFavoriteStarIcon(systemName: String) {
-        favoriteStarImageView.image = UIImage(systemName: systemName)
-    }
-}
+    // ---------------------------------------------------------------------
+    // MARK: - ACTIONS
+    // ---------------------------------------------------------------------
 
-private extension ProductInfoView {
-    struct SafetyStyle {
-        let background: UIColor
-        let text: UIColor
-    }
-
-    static func safetyStyle(for score: Int) -> SafetyStyle {
-        switch score {
-        case ..<40:
-            return SafetyStyle(background: .systemRed, text: .white)
-        case 40..<70:
-            return SafetyStyle(background: .systemYellow, text: .black)
-        default:
-            return SafetyStyle(background: .systemGreen, text: .white)
-        }
-    }
+    @objc private func favoriteTapped() { onFavoriteTapped?() }
+    @objc private func alertsTapped() { onAlertsTapped?() }
 }

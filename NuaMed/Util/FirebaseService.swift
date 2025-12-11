@@ -105,6 +105,7 @@ class FirebaseService {
             
         ]
 
+        
         favoritesCollection(uid)
             .document(productId)
             .setData(data, merge: true, completion: completion)
@@ -603,5 +604,35 @@ class FirebaseService {
             completion(.success(image))
         }
     }
+    
+    // MARK: - DELETE ALL HISTORY
+    func deleteAllHistory(uid: String, completion: @escaping (Error?) -> Void) {
+        db.collection("history")
+            .document(uid)
+            .collection("items")
+            .getDocuments { snapshot, error in
+
+                if let error = error {
+                    completion(error)
+                    return
+                }
+
+                guard let docs = snapshot?.documents else {
+                    completion(nil)
+                    return
+                }
+
+                let batch = self.db.batch()
+
+                for doc in docs {
+                    batch.deleteDocument(doc.reference)
+                }
+
+                batch.commit { batchError in
+                    completion(batchError)
+                }
+            }
+    }
+
 
 }
