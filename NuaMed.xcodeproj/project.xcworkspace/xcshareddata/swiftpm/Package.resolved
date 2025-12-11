@@ -1,5 +1,5 @@
 {
-  "originHash" : "5ceb1426524695c06355c620fd02c250f985c49dd658cc3de15b12e25a8739d0",
+  "originHash" : "892926e8a2054e0decb38122494a8cac166f644d500b35b464db0216bffe4147",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -103,7 +103,7 @@
     {
       "identity" : "multislider",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/yonat/MultiSlider",
+      "location" : "https://github.com/yonat/MultiSlider.git",
       "state" : {
         "revision" : "a5dbf58e5b05a55a771607f77547eb2067c601e9",
         "version" : "2.2.1"
