@@ -21,7 +21,16 @@ class ProductHistoryViewController: UIViewController {
         super.viewDidLoad()
         title = "History"
         view.backgroundColor = .systemBlue
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(backTap)
+        )
+        navigationItem.leftBarButtonItem?.tintColor = .white
 
+        
         // Attach table controller
         listController = ProductListViewController(tableView: historyView.productsTableView)
         listController.onSelectRow = { [weak self] row in
@@ -120,4 +129,9 @@ class ProductHistoryViewController: UIViewController {
         if score < 60 { return .systemYellow }
         return .systemGreen
     }
+    
+    @objc private func backTap() {
+        navigationController?.popViewController(animated: true)
+    }
+
 }

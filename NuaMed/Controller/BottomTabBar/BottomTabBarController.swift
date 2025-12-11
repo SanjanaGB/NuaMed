@@ -145,20 +145,32 @@ class BottomTabBarController: UITabBarController, ProfileDrawerDelegate {
         nav.pushViewController(viewC, animated: true)
     }
     
+//    func profileDrawerDidTapProductHistory(_ drawer: ProfileNavigationDrawerViewController) {
+//        toggleMenu()
+////        guard let nav = selectedViewController as? UINavigationController else {
+////            return
+////        }
+////        
+////        let viewC = ProductHistoryViewController()
+////        viewC.hidesBottomBarWhenPushed = true
+////        nav.pushViewController(viewC, animated: true)
+//        let historyVC = ProductHistoryViewController()
+//        let nav = UINavigationController(rootViewController: historyVC)
+//        nav.modalPresentationStyle = .fullScreen
+//        present(nav, animated: true)
+//    }
     func profileDrawerDidTapProductHistory(_ drawer: ProfileNavigationDrawerViewController) {
         toggleMenu()
-//        guard let nav = selectedViewController as? UINavigationController else {
-//            return
-//        }
-//        
-//        let viewC = ProductHistoryViewController()
-//        viewC.hidesBottomBarWhenPushed = true
-//        nav.pushViewController(viewC, animated: true)
+        
+        guard let nav = selectedViewController as? UINavigationController else {
+            return
+        }
+
         let historyVC = ProductHistoryViewController()
-        let nav = UINavigationController(rootViewController: historyVC)
-        nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+        historyVC.hidesBottomBarWhenPushed = true
+        nav.pushViewController(historyVC, animated: true)
     }
+
     
     func profileDrawerDidTapNews(_ drawer: ProfileNavigationDrawerViewController) {
         toggleMenu()
